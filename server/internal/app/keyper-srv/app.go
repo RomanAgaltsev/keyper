@@ -13,6 +13,7 @@ import (
 
 	"github.com/RomanAgaltsev/keyper/server/internal/app/keyper-srv/server"
 	"github.com/RomanAgaltsev/keyper/server/internal/config"
+	"github.com/RomanAgaltsev/keyper/server/internal/logger/sl"
 )
 
 // App struct of the application.
@@ -43,7 +44,7 @@ func (a *App) Run(ctx context.Context) error {
 	go func() {
 		a.log.Info(fmt.Sprintf("pprof started on %s", a.cfg.Pprof.Address))
 		if err := pprofServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			a.log.Error("running pprof server: %s", err)
+			a.log.Error("running pprof server", sl.Err(err))
 			cancel()
 		}
 	}()
@@ -70,9 +71,9 @@ func (a *App) Run(ctx context.Context) error {
 	defer cancel()
 
 	if err := pprofServer.Shutdown(ctx); err != nil {
-		slog.Error("pprof shut down", err)
+		a.log.Error("pprof shut down", sl.Err(err))
 	} else {
-		slog.Info("pprof shut down correctly")
+		a.log.Info("pprof shut down correctly")
 	}
 
 	return nil
