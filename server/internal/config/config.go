@@ -22,8 +22,7 @@ type Config struct {
 }
 
 // AppConfig - application configuration.
-type AppConfig struct {
-}
+type AppConfig struct{}
 
 // GRPCConfig - GRPC-server configuration.
 type GRPCConfig struct {

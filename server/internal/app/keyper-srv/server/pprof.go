@@ -8,7 +8,6 @@ import (
 )
 
 func NewPprofServer(cfg *config.PprofConfig) *http.Server {
-
 	handler := http.NewServeMux()
 	handler.HandleFunc("/debug/pprof/", pprof.Index)
 	handler.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)

@@ -11,8 +11,8 @@ const (
 )
 
 // New returns new slog logger for the given env:
-//  - "dev" - text handler with Debug level;
-//  - "prod" - JSON handler with Info level.
+//   - "dev" - text handler with Debug level;
+//   - "prod" - JSON handler with Info level.
 func New(env string) *slog.Logger {
 	var log *slog.Logger
 
