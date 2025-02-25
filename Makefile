@@ -2,6 +2,10 @@
 gen-mock:	# Generate mocks
 	go generate ./...
 
+.PHONY: gen-proto
+gen-proto:
+	protoc --go_out=. --go_opt=paths=import --go-grpc_out=. --go-grpc_opt=paths=import api/records_v1/records.proto
+
 .PHONY: lint
 lint:
 	golangci-lint run ./...
