@@ -7,17 +7,25 @@ import "google/protobuf/timestamp.proto";
 option go_package = "pkg/records_v1;records_v1";
 
 service RecordsV1 {
-    rpc Get(GetRequest) returns (Record);
-    rpc List(ListRequest) returns (stream Record);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc List(ListRequest) returns (stream ListResponse);
 }
 
 message GetRequest {
     uint64 record_id = 1;
 }
 
+message GetResponse {
+    Record record = 1;
+}
+
 message ListRequest {
     string login = 1;
     optional uint32 type = 2;
+}
+
+message ListResponse {
+    Record record = 1;
 }
 
 message Record {
