@@ -1,3 +1,6 @@
+# ==============================================================================
+# Code generation
+
 .PHONY: gen-mock
 gen-mock:	# Generate mocks
 	go generate ./...
@@ -5,6 +8,24 @@ gen-mock:	# Generate mocks
 .PHONY: gen-proto
 gen-proto:
 	protoc --go_out=. --go_opt=paths=import --go-grpc_out=. --go-grpc_opt=paths=import api/records_v1/records.proto
+
+.PHONY: gen-buf
+buf-gen:
+	buf generate
+
+# ==============================================================================
+# Buf
+
+.PHONY: buf-upd
+buf-upd:
+	buf dep update
+
+.PHONY: buf-lint
+buf-lint:
+	buf lint
+
+# ==============================================================================
+# Local commands
 
 .PHONY: lint
 lint:
