@@ -1,7 +1,7 @@
 package converter
 
 import (
-	recordsv1 "github.com/RomanAgaltsev/keyper/pkg/records_v1"
+    recordsv1 "github.com/RomanAgaltsev/keyper/pkg/keyper"
 	"github.com/RomanAgaltsev/keyper/server/internal/model"
 )
 
