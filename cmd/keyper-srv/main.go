@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	app "github.com/RomanAgaltsev/keyper/internal/app/keyper-srv"
@@ -17,7 +16,7 @@ func main() {
 	}
 
 	// Run the application
-	err = app.NewApp(cfg, logger.New(cfg.Env)).Run(context.Background())
+	err = app.NewApp(cfg, logger.New(cfg.Env)).Run()
 	if err != nil {
 		log.Fatalf("running application : %s", err.Error())
 	}

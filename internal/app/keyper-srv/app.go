@@ -37,7 +37,7 @@ func NewApp(cfg *config.Config, log *slog.Logger) *App {
 }
 
 // Run runs the whole application.
-func (a *App) Run(ctx context.Context) error {
+func (a *App) Run() error {
 	appCtx, cancelAppCtx := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancelAppCtx()
 
