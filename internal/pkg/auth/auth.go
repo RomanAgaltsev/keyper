@@ -4,7 +4,7 @@ package auth
 import (
 	"time"
 
-	"github.com/RomanAgaltsev/keyper/server/internal/model"
+	"github.com/RomanAgaltsev/keyper/internal/model"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"

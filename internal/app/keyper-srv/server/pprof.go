@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"github.com/RomanAgaltsev/keyper/server/internal/config"
+	"github.com/RomanAgaltsev/keyper/internal/config"
 )
 
 func NewPprofServer(cfg *config.PprofConfig) *http.Server {

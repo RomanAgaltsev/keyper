@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	app "github.com/RomanAgaltsev/keyper/server/internal/app/keyper-srv"
-	"github.com/RomanAgaltsev/keyper/server/internal/config"
-	"github.com/RomanAgaltsev/keyper/server/internal/logger"
+	app "github.com/RomanAgaltsev/keyper/internal/app/keyper-srv"
+	"github.com/RomanAgaltsev/keyper/internal/config"
+	"github.com/RomanAgaltsev/keyper/internal/logger"
 )
 
 func main() {

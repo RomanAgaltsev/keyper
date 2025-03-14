@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/RomanAgaltsev/keyper/server/internal/app/keyper-srv/server"
-	"github.com/RomanAgaltsev/keyper/server/internal/config"
-	"github.com/RomanAgaltsev/keyper/server/internal/logger/sl"
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/server"
+	"github.com/RomanAgaltsev/keyper/internal/config"
+	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 )
 
 // App struct of the application.
