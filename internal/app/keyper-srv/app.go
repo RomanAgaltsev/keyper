@@ -8,12 +8,18 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/server"
 	"github.com/RomanAgaltsev/keyper/internal/config"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
+)
+
+const (
+	timeoutServerShutdown = 5 * time.Second
+	timeoutShutdown       = 10 * time.Second
 )
 
 // App struct of the application.
@@ -32,8 +38,18 @@ func NewApp(cfg *config.Config, log *slog.Logger) *App {
 
 // Run runs the whole application.
 func (a *App) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	appCtx, cancelAppCtx := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancelAppCtx()
+
+	g, ctx := errgroup.WithContext(appCtx)
+
+	context.AfterFunc(ctx, func() {
+		ctx, cancelAfter := context.WithTimeout(context.Background(), timeoutShutdown)
+		defer cancelAfter()
+
+		<-ctx.Done()
+		a.log.Error("failed to gracefully shutdown the service")
+	})
 
 	/*
 		Pprof server
@@ -41,39 +57,46 @@ func (a *App) Run(ctx context.Context) error {
 
 	pprofServer := server.NewPprofServer(a.cfg.Pprof)
 
-	go func() {
+	g.Go(func() (err error) {
+		defer func() {
+			errRec := recover()
+			if errRec != nil {
+				err = fmt.Errorf("a panic occurred: %v", errRec)
+			}
+		}()
+
 		a.log.Info(fmt.Sprintf("pprof started on %s", a.cfg.Pprof.Address))
-		if err := pprofServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		if err = pprofServer.ListenAndServe(); err != nil {
+			if errors.Is(err, http.ErrServerClosed) {
+				return
+			}
 			a.log.Error("running pprof server", sl.Err(err))
-			cancel()
+			return fmt.Errorf("running pprof server has failed: %w", err)
 		}
-	}()
+		return nil
+	})
 
 	/*
 		Graceful shutdown
 	*/
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	g.Go(func() error {
+		defer a.log.Info("pprof server has been shut down")
 
-	a.log.Info("app is waiting for signal")
+		<-ctx.Done()
 
-	select {
-	case sig := <-quit:
-		a.log.Info("received signal", "signal.Notify", sig.String())
-		a.log.Info("server is shutting down")
-	case <-ctx.Done():
-		a.log.Info("received context done signal")
-		a.log.Info("received context done signal", "ctx.Done", fmt.Sprintf("%v", ctx.Err()))
-	}
+		shutdownTimeoutCtx, cancelShutdownTimeoutCtx := context.WithTimeout(context.Background(), timeoutServerShutdown)
+		defer cancelShutdownTimeoutCtx()
 
-	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+		if err := pprofServer.Shutdown(shutdownTimeoutCtx); err != nil {
+			a.log.Error("pprof server shut down", sl.Err(err))
+		}
 
-	if err := pprofServer.Shutdown(ctx); err != nil {
-		a.log.Error("pprof shut down", sl.Err(err))
-	} else {
-		a.log.Info("pprof shut down correctly")
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return err
 	}
 
 	return nil
