@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package keyper.v1;
+
+import "keyper/v1/user.proto";
+import "keyper/v1/secret.proto";
+
+option go_package = "github.com/RomanAgaltsev/keyper/pkg/keyper/v1;keyper";
+
+// The user service definition.
+service UserService {
+    // Registers new user.
+    rpc RegisterUserV1(RegisterUserV1Request) returns (RegisterUserV1Response);
+
+    // Logins existed user.
+    rpc LoginUserV1(LoginUserV1Request) returns (LoginUserV1Response);
+}
+
+// The secret service definition.
+service SecretService {
+    // Creates new secret.
+    rpc CreateSecretV1(CreateSecretV1Request) returns (CreateSecretV1Response);
+
+    // Returns existed secret.
+    rpc GetSecretV1(GetSecretV1Request) returns (GetSecretV1Response);
+
+    // Returns a list of existed secrets.
+    rpc ListSecretsV1(ListSecretsV1Request) returns (stream ListSecretsV1Response);
+
+    // Updates existed secret.
+    rpc UpdateSecretV1(UpdateSecretV1Request) returns (UpdateSecretV1Response);
+
+    // Deletes existed secret.
+    rpc DeleteSecretV1(DeleteSecretV1Request) returns (DeleteSecretV1Response);
+}

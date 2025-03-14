@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package keyper.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/RomanAgaltsev/keyper/pkg/keyper/v1;keyper";
+
+// UserCredentials contains credentials either for user registration or login.
+message UserCredentials {
+    // User login (email).
+    // Identifies the user across the entire application.
+    string login = 1 [
+        (buf.validate.field).required = true,
+        (buf.validate.field).string.email = true
+    ];
+
+    // User encryption key.
+    string key = 2 [
+        (buf.validate.field).required = true,
+        (buf.validate.field).string.min_len = 1
+    ];
+}
+
+// RegisterLoginResult contains result of either user registration or login.
+message RegisterLoginResult {
+    // Security token.
+    string token = 1 [
+        (buf.validate.field).required = true
+    ];
+}
+
+// RegisterUserV1Request contains credentials of user to register.
+message RegisterUserV1Request {
+    // New user credentials.
+    UserCredentials credentials = 1  [
+        (buf.validate.field).required = true
+    ];
+}
+
+// RegisterUserV1Response is received in response to a RegisterUserV1 rpc.
+//
+// It contains a security token for newly registered user.
+message RegisterUserV1Response {
+    // Result of new user registration.
+    RegisterLoginResult result = 1[
+        (buf.validate.field).required = true
+    ];
+}
+
+// LoginUserV1Request contains credentials of user to login.
+message LoginUserV1Request {
+    // Existed user credentials.
+    UserCredentials credentials = 1  [
+        (buf.validate.field).required = true
+    ];
+}
+
+// LoginUserV1Response is received in response to a LoginUserV1 rpc.
+//
+// It contains a security token for existed user.
+message LoginUserV1Response {
+    // Result of existed user login.
+    RegisterLoginResult result = 1[
+        (buf.validate.field).required = true
+    ];
+}
