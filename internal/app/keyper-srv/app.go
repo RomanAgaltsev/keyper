@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/server"
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/config"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 )
@@ -77,6 +79,33 @@ func (a *App) Run() error {
 	})
 
 	/*
+		gRPC server
+	*/
+	userService := service.NewUserService(a.cfg.App)
+	secretService := service.NewSecretService(a.cfg.App)
+
+	gRPCServer := server.NewGRPCServer(a.cfg.GRPC, userService, secretService)
+
+	g.Go(func() (err error) {
+		const op = "app.RunGRPCServer"
+
+		listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.GRPC.Port))
+		if err != nil {
+			a.log.Error(op, sl.Err(err))
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		a.log.Info(op, "addr", listen.Addr().String())
+
+		if err = gRPCServer.Serve(listen); err != nil {
+			a.log.Error(op, sl.Err(err))
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
+		return nil
+	})
+
+	/*
 		Graceful shutdown
 	*/
 
@@ -91,6 +120,20 @@ func (a *App) Run() error {
 		if err := pprofServer.Shutdown(shutdownTimeoutCtx); err != nil {
 			a.log.Error("pprof server shut down", sl.Err(err))
 		}
+
+		return nil
+	})
+
+	g.Go(func() error {
+		defer a.log.Info("GRPC server has been shut down")
+
+		const op = "app.StopGRPCServer"
+
+		a.log.With(slog.String("op", op)).
+			Info("stopping gRPC server", slog.Int("port", a.cfg.GRPC.Port))
+
+		// Используем встроенный в gRPCServer механизм graceful shutdown
+		gRPCServer.GracefulStop()
 
 		return nil
 	})
