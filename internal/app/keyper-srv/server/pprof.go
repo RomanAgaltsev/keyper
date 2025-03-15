@@ -15,10 +15,10 @@ func NewPprofServer(cfg *config.PprofConfig) *http.Server {
 	handler.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	handler.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
-	srv := &http.Server{
+	server := &http.Server{
 		Addr:    cfg.Address,
 		Handler: handler,
 	}
 
-	return srv
+	return server
 }
