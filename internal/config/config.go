@@ -26,7 +26,7 @@ type AppConfig struct{}
 
 // GRPCConfig - GRPC-server configuration.
 type GRPCConfig struct {
-	Port    int           `yaml:"port" env-default:":9090"`  // Port of GRPC-server to run
+	Port    int           `yaml:"port" env-default:"9090"`   // Port of GRPC-server to run
 	Timeout time.Duration `yaml:"timeout" env-default:"10h"` // GRPS-server timeout
 }
 
