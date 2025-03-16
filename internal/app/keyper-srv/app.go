@@ -16,6 +16,7 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/server"
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/config"
+	"github.com/RomanAgaltsev/keyper/internal/database"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 )
 
@@ -113,6 +114,13 @@ func (a *App) Run() error {
 	/*
 		gRPC server
 	*/
+
+	// Create connection pool
+	dbpool, err := database.NewConnectionPool(ctx, a.cfg.App.DatabaseURI)
+	if err != nil {
+		return fmt.Errorf("connection pool: %w", err)
+	}
+	defer dbpool.Close()
 
 	userService := service.NewUserService(a.cfg.App)
 	secretService := service.NewSecretService(a.cfg.App)

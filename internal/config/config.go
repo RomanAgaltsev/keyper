@@ -23,7 +23,9 @@ type Config struct {
 }
 
 // AppConfig - application configuration.
-type AppConfig struct{}
+type AppConfig struct {
+	DatabaseURI string `yaml:"database_uri"` // Address for database connection
+}
 
 // GRPCConfig - GRPC-server configuration.
 type GRPCConfig struct {
