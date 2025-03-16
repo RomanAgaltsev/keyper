@@ -53,13 +53,19 @@ func (a *App) Run() error {
 		a.log.Error("failed to gracefully shutdown the service")
 	})
 
+	pprofAddr := fmt.Sprintf("%s:%v", a.cfg.PPROF.Host, a.cfg.PPROF.Port)
+	gatewayAddr := fmt.Sprintf("%s:%v", a.cfg.REST.Host, a.cfg.REST.Port)
+	grpcAddr := fmt.Sprintf("%s:%v", a.cfg.GRPC.Host, a.cfg.GRPC.Port)
+
 	/*
 		Pprof server
 	*/
 
-	pprofServer := server.NewPprofServer(a.cfg.Pprof)
+	pprofServer := server.NewPprofServer(pprofAddr)
 
 	g.Go(func() (err error) {
+		const op = "app.RunPPROFServer"
+
 		defer func() {
 			errRec := recover()
 			if errRec != nil {
@@ -67,7 +73,8 @@ func (a *App) Run() error {
 			}
 		}()
 
-		a.log.Info(fmt.Sprintf("pprof started on %s", a.cfg.Pprof.Address))
+		a.log.Info(op, "addr", pprofAddr)
+
 		if err = pprofServer.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
 				return
@@ -75,12 +82,38 @@ func (a *App) Run() error {
 			a.log.Error("running pprof server", sl.Err(err))
 			return fmt.Errorf("running pprof server has failed: %w", err)
 		}
+
+		a.log.Info(fmt.Sprintf("pprof started on %s", pprofAddr))
+
+		return nil
+	})
+
+	/*
+		Gateway server
+	*/
+
+	gatewayServer := server.NewGatewayServer(grpcAddr, gatewayAddr)
+
+	g.Go(func() (err error) {
+		const op = "app.RunGatewayServer"
+
+		a.log.Info(op, "addr", gatewayAddr)
+
+		if err = gatewayServer.ListenAndServe(); err != nil {
+			if errors.Is(err, http.ErrServerClosed) {
+				return
+			}
+			a.log.Error(op, sl.Err(err))
+			return fmt.Errorf("%s: %w", op, err)
+		}
+
 		return nil
 	})
 
 	/*
 		gRPC server
 	*/
+
 	userService := service.NewUserService(a.cfg.App)
 	secretService := service.NewSecretService(a.cfg.App)
 
@@ -89,11 +122,12 @@ func (a *App) Run() error {
 	g.Go(func() (err error) {
 		const op = "app.RunGRPCServer"
 
-		listen, err := net.Listen("tcp", fmt.Sprintf(":%d", a.cfg.GRPC.Port))
+		listen, err := net.Listen("tcp", grpcAddr)
 		if err != nil {
 			a.log.Error(op, sl.Err(err))
 			return fmt.Errorf("%s: %w", op, err)
 		}
+		defer func() { _ = listen.Close() }()
 
 		a.log.Info(op, "addr", listen.Addr().String())
 
@@ -106,7 +140,7 @@ func (a *App) Run() error {
 	})
 
 	/*
-		Graceful shutdown
+		Shutdown
 	*/
 
 	g.Go(func() error {
@@ -119,6 +153,21 @@ func (a *App) Run() error {
 
 		if err := pprofServer.Shutdown(shutdownTimeoutCtx); err != nil {
 			a.log.Error("pprof server shut down", sl.Err(err))
+		}
+
+		return nil
+	})
+
+	g.Go(func() error {
+		defer a.log.Info("gateway server has been shut down")
+
+		<-ctx.Done()
+
+		shutdownTimeoutCtx, cancelShutdownTimeoutCtx := context.WithTimeout(context.Background(), timeoutServerShutdown)
+		defer cancelShutdownTimeoutCtx()
+
+		if err := gatewayServer.Shutdown(shutdownTimeoutCtx); err != nil {
+			a.log.Error("gateway server shut down", sl.Err(err))
 		}
 
 		return nil
