@@ -127,6 +127,8 @@ func (a *App) Run() error {
 	g.Go(func() error {
 		defer a.log.Info("GRPC server has been shut down")
 
+		<-ctx.Done()
+
 		const op = "app.StopGRPCServer"
 
 		a.log.With(slog.String("op", op)).
