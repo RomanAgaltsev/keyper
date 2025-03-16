@@ -18,7 +18,8 @@ type Config struct {
 
 	App   *AppConfig   `yaml:"app"`   // Application configuration
 	GRPC  *GRPCConfig  `yaml:"grpc"`  // GRPC-server configuration
-	Pprof *PprofConfig `yaml:"pprof"` // Pprof HTTP-server configuration
+	REST  *RESTConfig  `yaml:"rest"`  // REST(Gateway)-server configuration
+	PPROF *PPROFConfig `yaml:"pprof"` // Pprof HTTP-server configuration
 }
 
 // AppConfig - application configuration.
@@ -26,13 +27,23 @@ type AppConfig struct{}
 
 // GRPCConfig - GRPC-server configuration.
 type GRPCConfig struct {
-	Port    int           `yaml:"port" env-default:"9090"`   // Port of GRPC-server to run
-	Timeout time.Duration `yaml:"timeout" env-default:"10h"` // GRPS-server timeout
+	Host              string        `yaml:"host" env-default:""`     // Host address of GRPC-Server to run
+	Port              int           `yaml:"port" env-default:"9090"` // Port of GRPC-server to run
+	MaxConnectionIdle time.Duration `yaml:"maxConnectionIdle"`
+	MaxConnectionAge  time.Duration `yaml:"maxConnectionAge"`
+	Timeout           time.Duration `yaml:"timeout" env-default:"10h"` // GRPS-server timeout
 }
 
-// PprofConfig - Pprof HTTP-server configuration.
-type PprofConfig struct {
-	Address string `yaml:"address" env-default:":2080"` // Address of pprof HTTP-server to run
+// RESTConfig - Gateway HTTP-server configuration.
+type RESTConfig struct {
+	Host string `yaml:"host" env-default:""`     // Host address of gateway HTTP-server to run
+	Port int    `yaml:"port" env-default:"8080"` // Port of gateway HTTP-server to run
+}
+
+// PPROFConfig - Pprof HTTP-server configuration.
+type PPROFConfig struct {
+	Host string `yaml:"host" env-default:""`     // Host address of pprof HTTP-server to run
+	Port int    `yaml:"port" env-default:"2080"` // Port of pprof HTTP-server to run
 }
 
 // Load reads configuration from a file specified with flag or env.

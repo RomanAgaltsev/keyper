@@ -3,11 +3,9 @@ package server
 import (
 	"net/http"
 	"net/http/pprof"
-
-	"github.com/RomanAgaltsev/keyper/internal/config"
 )
 
-func NewPprofServer(cfg *config.PprofConfig) *http.Server {
+func NewPprofServer(Addr string) *http.Server {
 	handler := http.NewServeMux()
 	handler.HandleFunc("/debug/pprof/", pprof.Index)
 	handler.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
@@ -16,7 +14,7 @@ func NewPprofServer(cfg *config.PprofConfig) *http.Server {
 	handler.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
 	server := &http.Server{
-		Addr:    cfg.Address,
+		Addr:    Addr,
 		Handler: handler,
 	}
 
