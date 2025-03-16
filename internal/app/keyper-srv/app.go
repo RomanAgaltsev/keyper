@@ -92,7 +92,7 @@ func (a *App) Run() error {
 		Gateway server
 	*/
 
-	gatewayServer := server.NewGatewayServer(grpcAddr, gatewayAddr)
+	gatewayServer := server.NewGatewayServer(a.log, grpcAddr, gatewayAddr)
 
 	g.Go(func() (err error) {
 		const op = "app.RunGatewayServer"
@@ -117,7 +117,7 @@ func (a *App) Run() error {
 	userService := service.NewUserService(a.cfg.App)
 	secretService := service.NewSecretService(a.cfg.App)
 
-	gRPCServer := server.NewGRPCServer(a.cfg.GRPC, userService, secretService)
+	gRPCServer := server.NewGRPCServer(a.log, userService, secretService)
 
 	g.Go(func() (err error) {
 		const op = "app.RunGRPCServer"
