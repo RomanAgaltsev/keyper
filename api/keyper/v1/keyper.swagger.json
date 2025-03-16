@@ -1,0 +1,523 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "keyper/v1/keyper.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "UserService"
+    },
+    {
+      "name": "SecretService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/secret/create": {
+      "post": {
+        "summary": "Creates new secret.",
+        "operationId": "SecretService_CreateSecretV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateSecretV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "CreateSecretV1Request contains a new secret to store in the service.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSecretV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/secret/list": {
+      "get": {
+        "summary": "Returns a list of existed secrets.",
+        "operationId": "SecretService_ListSecretsV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1ListSecretsV1Response"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1ListSecretsV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/secret/update": {
+      "post": {
+        "summary": "Updates existed secret.",
+        "operationId": "SecretService_UpdateSecretV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateSecretV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "UpdateSecretV1Request contains a secrets data to update in the service storage.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateSecretV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/secret/{id}": {
+      "get": {
+        "summary": "Returns existed secret.",
+        "operationId": "SecretService_GetSecretV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSecretV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Secrets identifier (uuid).",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes existed secret.",
+        "operationId": "SecretService_DeleteSecretV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteSecretV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Secrets identifier (uuid).",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/user/login": {
+      "post": {
+        "summary": "Logins existed user.",
+        "operationId": "UserService_LoginUserV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1LoginUserV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "LoginUserV1Request contains credentials of user to login.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1LoginUserV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/user/register": {
+      "post": {
+        "summary": "Registers new user.",
+        "operationId": "UserService_RegisterUserV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RegisterUserV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "RegisterUserV1Request contains credentials of user to register.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterUserV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CreateSecretV1ResponseCreateSecretResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Secrets identifier (uuid)."
+        },
+        "error": {
+          "type": "string",
+          "description": "Creation error description."
+        }
+      },
+      "description": "CreateSecretResult contains a result of secrets creation."
+    },
+    "DeleteSecretV1ResponseDeleteSecretResult": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Delete error description."
+        }
+      },
+      "description": "Secret delete result."
+    },
+    "GetSecretV1ResponseGetSecretResult": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "$ref": "#/definitions/v1Secret",
+          "description": "Secret with identifier from request."
+        },
+        "error": {
+          "type": "string",
+          "description": "Error description."
+        }
+      },
+      "description": "CreateSecretResult contains a result of secrets search."
+    },
+    "UpdateSecretV1ResponseUpdateSecretResult": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Update error description."
+        }
+      },
+      "description": "Secret update result."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CreateSecretV1Request": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "$ref": "#/definitions/v1Secret",
+          "description": "A secret to store."
+        }
+      },
+      "description": "CreateSecretV1Request contains a new secret to store in the service."
+    },
+    "v1CreateSecretV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/CreateSecretV1ResponseCreateSecretResult",
+          "description": "Result of secret creation."
+        }
+      },
+      "description": "CreateSecretV1Response is received in response to a CreateSecretV1 rpc.\n\nIt contains a result of secret creation - secrets identifier or creation error."
+    },
+    "v1DeleteSecretV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/DeleteSecretV1ResponseDeleteSecretResult",
+          "description": "Secrets deletion result."
+        }
+      },
+      "description": "DeleteSecretV1Response is received in response to a DeleteSecretV1 rpc.\n\nIt contains a secrets delete result."
+    },
+    "v1GetSecretV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/GetSecretV1ResponseGetSecretResult",
+          "description": "Secrets search result."
+        }
+      },
+      "description": "GetSecretV1Response is received in response to a GetSecretV1 rpc.\n\nIt contains a secret with identifier from request or an error."
+    },
+    "v1ListSecretsV1Response": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Secret"
+          },
+          "description": "A list of secrets."
+        }
+      },
+      "description": "ListSecretsV1Response is received in response to a ListSecretsV1 rpc.\n\nIt contains a list of found secrets."
+    },
+    "v1LoginUserV1Request": {
+      "type": "object",
+      "properties": {
+        "credentials": {
+          "$ref": "#/definitions/v1UserCredentials",
+          "description": "Existed user credentials."
+        }
+      },
+      "description": "LoginUserV1Request contains credentials of user to login."
+    },
+    "v1LoginUserV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/v1RegisterLoginResult",
+          "description": "Result of existed user login."
+        }
+      },
+      "description": "LoginUserV1Response is received in response to a LoginUserV1 rpc.\n\nIt contains a security token for existed user."
+    },
+    "v1RegisterLoginResult": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "Security token."
+        }
+      },
+      "description": "RegisterLoginResult contains result of either user registration or login."
+    },
+    "v1RegisterUserV1Request": {
+      "type": "object",
+      "properties": {
+        "credentials": {
+          "$ref": "#/definitions/v1UserCredentials",
+          "description": "New user credentials."
+        }
+      },
+      "description": "RegisterUserV1Request contains credentials of user to register."
+    },
+    "v1RegisterUserV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/v1RegisterLoginResult",
+          "description": "Result of new user registration."
+        }
+      },
+      "description": "RegisterUserV1Response is received in response to a RegisterUserV1 rpc.\n\nIt contains a security token for newly registered user."
+    },
+    "v1Secret": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Secrets identifier (uuid)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Secrets name."
+        },
+        "type": {
+          "$ref": "#/definitions/v1SecretType",
+          "description": "Secrets type."
+        },
+        "metadata": {
+          "type": "string",
+          "format": "byte",
+          "description": "Secrets metadata."
+        },
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Secrets data."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Secrets arbitrary description or comment."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Secrets creation time."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Secrets modification time."
+        }
+      },
+      "description": "Secret contains secrets info, metadata and data."
+    },
+    "v1SecretType": {
+      "type": "string",
+      "enum": [
+        "SECRET_TYPE_UNSPECIFIED",
+        "SECRET_TYPE_CREDENTIALS",
+        "SECRET_TYPE_TEXT",
+        "SECRET_TYPE_BINARY",
+        "SECRET_TYPE_CARD"
+      ],
+      "default": "SECRET_TYPE_UNSPECIFIED",
+      "description": "SecretType contains a list of secrets types.\n\n - SECRET_TYPE_UNSPECIFIED: SECRET_TYPE_UNSPECIFIED is a default secret type.\n - SECRET_TYPE_CREDENTIALS: SECRET_TYPE_CREDENTIALS specifies a secret with user credentials as data.\n - SECRET_TYPE_TEXT: SECRET_TYPE_TEXT specifies a secret with arbitrary text as data.\n - SECRET_TYPE_BINARY: SECRET_TYPE_BINARY specifies a secret with binary data.\n - SECRET_TYPE_CARD: SECRET_TYPE_TEXT specifies a secret with bank card as data."
+    },
+    "v1UpdateSecretV1Request": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "$ref": "#/definitions/v1Secret",
+          "description": "Secret with data to update."
+        }
+      },
+      "description": "UpdateSecretV1Request contains a secrets data to update in the service storage."
+    },
+    "v1UpdateSecretV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/UpdateSecretV1ResponseUpdateSecretResult",
+          "description": "Secrets update result."
+        }
+      },
+      "description": "UpdateSecretV1Response is received in response to a UpdateSecretV1 rpc.\n\nIt contains a secrets update result."
+    },
+    "v1UserCredentials": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "description": "User login (email).\nIdentifies the user across the entire application."
+        },
+        "key": {
+          "type": "string",
+          "description": "User encryption key."
+        }
+      },
+      "description": "UserCredentials contains credentials either for user registration or login."
+    }
+  }
+}

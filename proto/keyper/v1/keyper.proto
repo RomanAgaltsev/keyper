@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package keyper.v1;
 
+import "google/api/annotations.proto";
 import "keyper/v1/user.proto";
 import "keyper/v1/secret.proto";
 
@@ -10,26 +11,59 @@ option go_package = "github.com/RomanAgaltsev/keyper/pkg/keyper/v1;keyper";
 // The user service definition.
 service UserService {
     // Registers new user.
-    rpc RegisterUserV1(RegisterUserV1Request) returns (RegisterUserV1Response);
+    rpc RegisterUserV1(RegisterUserV1Request) returns (RegisterUserV1Response) {
+        option (google.api.http) = {
+            post: "/v1/user/register"
+            body: "*"
+        };
+    }
+
 
     // Logins existed user.
-    rpc LoginUserV1(LoginUserV1Request) returns (LoginUserV1Response);
+    rpc LoginUserV1(LoginUserV1Request) returns (LoginUserV1Response) {
+        option (google.api.http) = {
+            post: "/v1/user/login"
+            body: "*"
+        };
+    }
 }
 
 // The secret service definition.
 service SecretService {
     // Creates new secret.
-    rpc CreateSecretV1(CreateSecretV1Request) returns (CreateSecretV1Response);
+    rpc CreateSecretV1(CreateSecretV1Request) returns (CreateSecretV1Response) {
+        option (google.api.http) = {
+            post: "/v1/secret/create"
+            body: "*"
+        };
+    }
 
     // Returns existed secret.
-    rpc GetSecretV1(GetSecretV1Request) returns (GetSecretV1Response);
+    rpc GetSecretV1(GetSecretV1Request) returns (GetSecretV1Response) {
+        option (google.api.http) = {
+            get: "/v1/secret/{id}"
+        };
+    }
 
     // Returns a list of existed secrets.
-    rpc ListSecretsV1(ListSecretsV1Request) returns (stream ListSecretsV1Response);
+    rpc ListSecretsV1(ListSecretsV1Request) returns (stream ListSecretsV1Response) {
+        option (google.api.http) = {
+            get: "/v1/secret/list"
+        };
+    }
 
     // Updates existed secret.
-    rpc UpdateSecretV1(UpdateSecretV1Request) returns (UpdateSecretV1Response);
+    rpc UpdateSecretV1(UpdateSecretV1Request) returns (UpdateSecretV1Response) {
+        option (google.api.http) = {
+            post: "/v1/secret/update"
+            body: "*"
+        };
+    }
 
     // Deletes existed secret.
-    rpc DeleteSecretV1(DeleteSecretV1Request) returns (DeleteSecretV1Response);
+    rpc DeleteSecretV1(DeleteSecretV1Request) returns (DeleteSecretV1Response) {
+        option (google.api.http) = {
+            delete: "/v1/secret/{id}"
+        };
+    }
 }
