@@ -13,8 +13,7 @@ func NewUserService(cfg *config.AppConfig) *UserService {
 	return &UserService{}
 }
 
-type UserService struct {
-}
+type UserService struct{}
 
 func (s *UserService) Register(ctx context.Context) error {
 	return nil

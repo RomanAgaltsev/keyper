@@ -13,8 +13,7 @@ func NewSecretService(cfg *config.AppConfig) *SecretService {
 	return &SecretService{}
 }
 
-type SecretService struct {
-}
+type SecretService struct{}
 
 func (s *SecretService) Create(ctx context.Context) error {
 	return nil
