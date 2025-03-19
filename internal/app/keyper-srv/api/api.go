@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/bufbuild/protovalidate-go"
 	"google.golang.org/grpc"
@@ -24,9 +25,18 @@ type SecretService interface {
 	Delete(ctx context.Context) error
 }
 
+func NewUserAPI(log *slog.Logger, user UserService) pb.UserServiceServer {
+	return &userAPI{
+		log:  log,
+		user: user,
+	}
+}
+
 type userAPI struct {
-	pb.UnimplementedUserServiceServer
+	log  *slog.Logger
 	user UserService
+
+	pb.UnimplementedUserServiceServer
 }
 
 func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1Request) (*pb.RegisterUserV1Response, error) {
@@ -74,9 +84,18 @@ func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Reques
 	return &response, nil
 }
 
+func NewSecretAPI(log *slog.Logger, secret SecretService) pb.SecretServiceServer {
+	return &secretAPI{
+		log:    log,
+		secret: secret,
+	}
+}
+
 type secretAPI struct {
-	pb.UnimplementedSecretServiceServer
+	log    *slog.Logger
 	secret SecretService
+
+	pb.UnimplementedSecretServiceServer
 }
 
 func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecretV1Request) (*pb.CreateSecretV1Response, error) {
@@ -187,7 +206,7 @@ func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecret
 	return &response, nil
 }
 
-func Register(gRPCServer *grpc.Server, user UserService, secret SecretService) {
-	pb.RegisterUserServiceServer(gRPCServer, &userAPI{user: user})
-	pb.RegisterSecretServiceServer(gRPCServer, &secretAPI{secret: secret})
+func Register(gRPCServer *grpc.Server, userAPI pb.UserServiceServer, secretAPI pb.SecretServiceServer) {
+	pb.RegisterUserServiceServer(gRPCServer, userAPI)
+	pb.RegisterSecretServiceServer(gRPCServer, secretAPI)
 }

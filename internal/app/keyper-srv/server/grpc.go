@@ -8,11 +8,14 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
 )
 
-func NewGRPCServer(log *slog.Logger, user api.UserService, secret api.SecretService) *grpc.Server {
+func NewGRPCServer(log *slog.Logger, userService api.UserService, secretService api.SecretService) *grpc.Server {
 	// gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor( recovery.UnaryServerInterceptor(recoveryOpts...), logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),))
 	server := grpc.NewServer()
 
-	api.Register(server, user, secret)
+	userAPI := api.NewUserAPI(log, userService)
+	secretAPI := api.NewSecretAPI(log, secretService)
+
+	api.Register(server, userAPI, secretAPI)
 
 	return server
 }

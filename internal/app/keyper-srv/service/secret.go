@@ -2,18 +2,22 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
-	"github.com/RomanAgaltsev/keyper/internal/config"
 )
 
 var _ api.SecretService = (*SecretService)(nil)
 
-func NewSecretService(cfg *config.AppConfig) *SecretService {
-	return &SecretService{}
+func NewSecretService(log *slog.Logger) *SecretService {
+	return &SecretService{
+		log: log,
+	}
 }
 
-type SecretService struct{}
+type SecretService struct {
+	log *slog.Logger
+}
 
 func (s *SecretService) Create(ctx context.Context) error {
 	return nil
