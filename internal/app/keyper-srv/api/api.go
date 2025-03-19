@@ -10,12 +10,13 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
+	"github.com/RomanAgaltsev/keyper/internal/model"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 )
 
 type UserService interface {
-	Register(ctx context.Context) error
-	Login(ctx context.Context) error
+	Register(ctx context.Context, user model.User) error
+	Login(ctx context.Context, user model.User) error
 }
 
 type SecretService interface {
@@ -48,9 +49,12 @@ func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1
 
 	const op = "userAPI.RegisterUser"
 
+	// TODO: transform user from request
+	user := model.User{}
+
 	// TODO: add conflict handling
 	// TODO: add errors messages
-	err := a.user.Register(ctx)
+	err := a.user.Register(ctx, user)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
@@ -74,8 +78,11 @@ func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Reques
 
 	const op = "userAPI.LoginUser"
 
+	// TODO: transform user from request
+	user := model.User{}
+
 	// TODO: add errors messages
-	err := a.user.Login(ctx)
+	err := a.user.Login(ctx, user)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")

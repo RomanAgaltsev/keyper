@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
+	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
 var _ api.UserService = (*UserService)(nil)
@@ -19,10 +20,10 @@ type UserService struct {
 	log *slog.Logger
 }
 
-func (s *UserService) Register(ctx context.Context) error {
+func (s *UserService) Register(ctx context.Context, user model.User) error {
 	return nil
 }
 
-func (s *UserService) Login(ctx context.Context) error {
+func (s *UserService) Login(ctx context.Context, user model.User) error {
 	return nil
 }

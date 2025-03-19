@@ -3,7 +3,7 @@ package model
 import "time"
 
 type User struct {
-	ID       uint
+	ID       uint64
 	Login    string
 	Password []byte
 }
