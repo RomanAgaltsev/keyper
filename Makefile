@@ -33,6 +33,12 @@ lint:
 	nilaway -include-pkgs="github.com/RomanAgaltsev/keyper" ./...
 	govulncheck ./...
 
+.PHONY: lint-upd
+lint-upd:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	go install go.uber.org/nilaway/cmd/nilaway@latest
+	go install golang.org/x/vuln/cmd/govulncheck@latest
+
 .PHONY: tidy
 tidy:	# Cleanup go.mod
 	go mod tidy
