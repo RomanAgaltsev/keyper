@@ -19,12 +19,12 @@ require (
 )
 
 require (
-	cel.dev/expr v0.19.1 // indirect
-	github.com/BurntSushi/toml v1.4.0 // indirect
-	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	cel.dev/expr v0.22.0 // indirect
+	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
-	github.com/google/cel-go v0.23.2 // indirect
+	github.com/google/cel-go v0.24.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -37,7 +37,7 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/stoewer/go-strcase v1.3.0 // indirect
-	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
+	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.37.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
