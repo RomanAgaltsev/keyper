@@ -10,10 +10,16 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 	"github.com/RomanAgaltsev/keyper/pkg/transform"
+)
+
+var (
+	_ UserService   = (*service.UserService)(nil)
+	_ SecretService = (*service.SecretService)(nil)
 )
 
 type UserService interface {

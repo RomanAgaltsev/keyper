@@ -13,6 +13,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/server"
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/config"
@@ -122,8 +123,11 @@ func (a *App) Run() error {
 	}
 	defer dbpool.Close()
 
-	userService := service.NewUserService(a.log)
-	secretService := service.NewSecretService(a.log)
+	userRepository := repository.NewUserRepository(dbpool)
+	userService := service.NewUserService(a.log, userRepository)
+
+	secretRepository := repository.NewSecretRepository(dbpool)
+	secretService := service.NewSecretService(a.log, secretRepository)
 
 	gRPCServer := server.NewGRPCServer(a.log, userService, secretService)
 

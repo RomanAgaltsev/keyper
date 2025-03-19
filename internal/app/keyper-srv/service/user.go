@@ -4,20 +4,28 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
-var _ api.UserService = (*UserService)(nil)
+var _ UserRepository = (*repository.UserRepository)(nil)
 
-func NewUserService(log *slog.Logger) *UserService {
+type UserRepository interface {
+	Create(ctx context.Context, user model.User) error
+	Get(ctx context.Context, login string) (model.User, error)
+}
+
+func NewUserService(log *slog.Logger, repository *repository.UserRepository) *UserService {
 	return &UserService{
-		log: log,
+		log:        log,
+		repository: repository,
 	}
 }
 
 type UserService struct {
 	log *slog.Logger
+
+	repository *repository.UserRepository
 }
 
 func (s *UserService) Register(ctx context.Context, user model.User) error {

@@ -6,20 +6,31 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
-var _ api.SecretService = (*SecretService)(nil)
+var _ SecretRepository = (*repository.SecretRepository)(nil)
 
-func NewSecretService(log *slog.Logger) *SecretService {
+type SecretRepository interface {
+	Create(ctx context.Context, secret model.Secret) (uuid.UUID, error)
+	Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error)
+	List(ctx context.Context, user model.User) (model.Secrets, error)
+	Update(ctx context.Context, secret model.Secret) error
+	Delete(ctx context.Context, secretID uuid.UUID) error
+}
+
+func NewSecretService(log *slog.Logger, repository *repository.SecretRepository) *SecretService {
 	return &SecretService{
-		log: log,
+		log:        log,
+		repository: repository,
 	}
 }
 
 type SecretService struct {
 	log *slog.Logger
+
+	repository *repository.SecretRepository
 }
 
 func (s *SecretService) Create(ctx context.Context, secret model.Secret) (uuid.UUID, error) {
