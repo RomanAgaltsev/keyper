@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 )
 
@@ -45,10 +46,13 @@ func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "userAPI.RegisterUser"
+
 	// TODO: add conflict handling
 	// TODO: add errors messages
 	err := a.user.Register(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -68,9 +72,12 @@ func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Reques
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "userAPI.LoginUser"
+
 	// TODO: add errors messages
 	err := a.user.Login(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -104,10 +111,13 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "secretAPI.CreateSecret"
+
 	// TODO: add conflict handling
 	// TODO: add errors messages
 	err := a.secret.Create(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -128,9 +138,12 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "secretAPI.GetSecret"
+
 	// TODO: add errors messages
 	err := a.secret.Get(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -151,9 +164,12 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 		return status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "secretAPI.ListSecrets"
+
 	// TODO: add errors messages
 	err := a.secret.List(context.Background())
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -168,9 +184,12 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "secretAPI.UpdateSecret"
+
 	// TODO: add errors messages
 	err := a.secret.Update(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
@@ -190,9 +209,12 @@ func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecret
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	const op = "secretAPI.DeleteSecret"
+
 	// TODO: add errors messages
 	err := a.secret.Delete(ctx)
 	if err != nil {
+		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
