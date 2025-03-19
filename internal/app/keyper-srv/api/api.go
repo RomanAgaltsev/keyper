@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/bufbuild/protovalidate-go"
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,11 +21,11 @@ type UserService interface {
 }
 
 type SecretService interface {
-	Create(ctx context.Context) error
-	Get(ctx context.Context) error
-	List(ctx context.Context) error
-	Update(ctx context.Context) error
-	Delete(ctx context.Context) error
+	Create(ctx context.Context, secret model.Secret) (uuid.UUID, error)
+	Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error)
+	List(ctx context.Context, user model.User) (model.Secrets, error)
+	Update(ctx context.Context, secret model.Secret) error
+	Delete(ctx context.Context, secretID uuid.UUID) error
 }
 
 func NewUserAPI(log *slog.Logger, user UserService) pb.UserServiceServer {
@@ -120,13 +121,18 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 
 	const op = "secretAPI.CreateSecret"
 
+	// TODO: transform secret from request
+	secret := model.Secret{}
+
 	// TODO: add conflict handling
 	// TODO: add errors messages
-	err := a.secret.Create(ctx)
+	secretID, err := a.secret.Create(ctx, secret)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
+
+	// TODO: transform ID and error
 
 	// TODO: return ID and error
 	response := pb.CreateSecretV1Response{
@@ -147,12 +153,17 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 
 	const op = "secretAPI.GetSecret"
 
+	// TODO: transform secret ID from request
+	secretID := uuid.New()
+
 	// TODO: add errors messages
-	err := a.secret.Get(ctx)
+	secret, err := a.secret.Get(ctx, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
+
+	// TODO: transform secret and error
 
 	// TODO: return secret and error
 	response := pb.GetSecretV1Response{
@@ -173,13 +184,17 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 
 	const op = "secretAPI.ListSecrets"
 
+	// TODO: transform user from request
+	user := model.User{}
+
 	// TODO: add errors messages
-	err := a.secret.List(context.Background())
+	secrets, err := a.secret.List(stream.Context(), user)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return status.Error(codes.Internal, "please look at logs")
 	}
 
+	// TODO: transform list of secrets and error
 	// TODO: return list of secrets and error
 
 	return nil
@@ -193,12 +208,17 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 
 	const op = "secretAPI.UpdateSecret"
 
+	// TODO: transform secret from request
+	secret := model.Secret{}
+
 	// TODO: add errors messages
-	err := a.secret.Update(ctx)
+	err := a.secret.Update(ctx, secret)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
+
+	// TODO: transform error
 
 	// TODO: return error
 	response := pb.UpdateSecretV1Response{
@@ -218,12 +238,17 @@ func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecret
 
 	const op = "secretAPI.DeleteSecret"
 
+	// TODO: transform secret ID from request
+	secretID := uuid.New()
+
 	// TODO: add errors messages
-	err := a.secret.Delete(ctx)
+	err := a.secret.Delete(ctx, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
+
+	// TODO: transform error
 
 	// TODO: return error
 	response := pb.DeleteSecretV1Response{
