@@ -62,6 +62,10 @@ update:	# Update dependencies as recorded in the go.mod and go.sum files
 	go get -u ./...
 	go mod tidy
 
+.PHONY: clean
+clean:	# Clean modules cache
+	go clean -modcache
+
 .PHONY: doc
 doc:	# godoc
 	godoc -http=:6060
