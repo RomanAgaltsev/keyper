@@ -13,6 +13,7 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
+	"github.com/RomanAgaltsev/keyper/pkg/transform"
 )
 
 type UserService interface {
@@ -50,8 +51,7 @@ func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1
 
 	const op = "userAPI.RegisterUser"
 
-	// TODO: transform user from request
-	user := model.User{}
+	user := transform.PbToUser(request.Credentials)
 
 	// TODO: add conflict handling
 	// TODO: add errors messages
@@ -79,8 +79,7 @@ func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Reques
 
 	const op = "userAPI.LoginUser"
 
-	// TODO: transform user from request
-	user := model.User{}
+	user := transform.PbToUser(request.Credentials)
 
 	// TODO: add errors messages
 	err := a.user.Login(ctx, user)
@@ -121,8 +120,8 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 
 	const op = "secretAPI.CreateSecret"
 
-	// TODO: transform secret from request
-	secret := model.Secret{}
+	// TODO: add user from request to secret
+	secret := transform.PbToSecret(request.Secret)
 
 	// TODO: add conflict handling
 	// TODO: add errors messages
@@ -132,13 +131,14 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
-	// TODO: transform ID and error
+	secretIDPb := secretID.String()
+	errorPb := ""
 
 	// TODO: return ID and error
 	response := pb.CreateSecretV1Response{
 		Result: &pb.CreateSecretV1Response_CreateSecretResult{
-			Id:    nil,
-			Error: nil,
+			Id:    &secretIDPb,
+			Error: &errorPb,
 		},
 	}
 
@@ -163,13 +163,14 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
-	// TODO: transform secret and error
+	secretPb := transform.SecretToPb(secret)
+	errorPb := ""
 
 	// TODO: return secret and error
 	response := pb.GetSecretV1Response{
 		Result: &pb.GetSecretV1Response_GetSecretResult{
-			Secret: nil,
-			Error:  nil,
+			Secret: secretPb,
+			Error:  &errorPb,
 		},
 	}
 
@@ -188,7 +189,7 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 	user := model.User{}
 
 	// TODO: add errors messages
-	secrets, err := a.secret.List(stream.Context(), user)
+	_, err := a.secret.List(stream.Context(), user)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return status.Error(codes.Internal, "please look at logs")
@@ -208,8 +209,7 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 
 	const op = "secretAPI.UpdateSecret"
 
-	// TODO: transform secret from request
-	secret := model.Secret{}
+	secret := transform.PbToSecret(request.Secret)
 
 	// TODO: add errors messages
 	err := a.secret.Update(ctx, secret)
@@ -219,11 +219,11 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 	}
 
 	// TODO: transform error
+	errorPb := ""
 
-	// TODO: return error
 	response := pb.UpdateSecretV1Response{
 		Result: &pb.UpdateSecretV1Response_UpdateSecretResult{
-			Error: nil,
+			Error: &errorPb,
 		},
 	}
 
@@ -249,11 +249,12 @@ func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecret
 	}
 
 	// TODO: transform error
+	errorPb := ""
 
 	// TODO: return error
 	response := pb.DeleteSecretV1Response{
 		Result: &pb.DeleteSecretV1Response_DeleteSecretResult{
-			Error: nil,
+			Error: &errorPb,
 		},
 	}
 
