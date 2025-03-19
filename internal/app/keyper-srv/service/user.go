@@ -2,18 +2,22 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/api"
-	"github.com/RomanAgaltsev/keyper/internal/config"
 )
 
 var _ api.UserService = (*UserService)(nil)
 
-func NewUserService(cfg *config.AppConfig) *UserService {
-	return &UserService{}
+func NewUserService(log *slog.Logger) *UserService {
+	return &UserService{
+		log: log,
+	}
 }
 
-type UserService struct{}
+type UserService struct {
+	log *slog.Logger
+}
 
 func (s *UserService) Register(ctx context.Context) error {
 	return nil

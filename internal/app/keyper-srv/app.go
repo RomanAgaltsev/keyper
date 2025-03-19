@@ -122,7 +122,7 @@ func (a *App) Run() error {
 	}
 	defer dbpool.Close()
 
-	userService := service.NewUserService(a.cfg.App)
+	userService := service.NewUserService(a.log)
 	secretService := service.NewSecretService(a.cfg.App)
 
 	gRPCServer := server.NewGRPCServer(a.log, userService, secretService)
