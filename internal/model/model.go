@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID       uint64
+	ID       int32
 	Login    string
 	Password string
 }
@@ -31,7 +31,7 @@ type Secret struct {
 	Comment   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    uint64
+	UserID    int32
 }
 
 type Secrets []Secret

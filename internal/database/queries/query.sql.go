@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createSecret = `-- name: CreateSecret :one
@@ -23,8 +22,8 @@ type CreateSecretParams struct {
 	Type     SecretType
 	Metadata []byte
 	Data     []byte
-	Comment  pgtype.Text
-	UserID   pgtype.Int4
+	Comment  *string
+	UserID   int32
 }
 
 func (q *Queries) CreateSecret(ctx context.Context, arg CreateSecretParams) (uuid.UUID, error) {
@@ -80,10 +79,10 @@ type GetSecretRow struct {
 	Type      SecretType
 	Metadata  []byte
 	Data      []byte
-	Comment   pgtype.Text
+	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    pgtype.Int4
+	UserID    int32
 }
 
 func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (GetSecretRow, error) {
@@ -115,10 +114,10 @@ type GetSecretForUpdateRow struct {
 	Type      SecretType
 	Metadata  []byte
 	Data      []byte
-	Comment   pgtype.Text
+	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    pgtype.Int4
+	UserID    int32
 }
 
 func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (GetSecretForUpdateRow, error) {
@@ -168,12 +167,12 @@ type ListSecretsRow struct {
 	Name      string
 	Type      SecretType
 	Metadata  []byte
-	Comment   pgtype.Text
+	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListSecrets(ctx context.Context, userID pgtype.Int4) ([]ListSecretsRow, error) {
+func (q *Queries) ListSecrets(ctx context.Context, userID int32) ([]ListSecretsRow, error) {
 	rows, err := q.db.Query(ctx, listSecrets, userID)
 	if err != nil {
 		return nil, err
@@ -213,10 +212,10 @@ type UpdateSecretParams struct {
 	Type      SecretType
 	Metadata  []byte
 	Data      []byte
-	Comment   pgtype.Text
+	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    pgtype.Int4
+	UserID    int32
 }
 
 func (q *Queries) UpdateSecret(ctx context.Context, arg UpdateSecretParams) error {

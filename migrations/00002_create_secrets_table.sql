@@ -13,7 +13,7 @@ CREATE TABLE secrets (
     comment    VARCHAR(100),
     created_at TIMESTAMP    NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP    NOT NULL DEFAULT NOW(),
-    user_id    INTEGER REFERENCES users (id),
+    user_id    INTEGER REFERENCES users (id) NOT NULL,
     UNIQUE (name, user_id)
 );
 

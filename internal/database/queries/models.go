@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type SecretType string
@@ -64,10 +63,10 @@ type Secret struct {
 	Type      SecretType
 	Metadata  []byte
 	Data      []byte
-	Comment   pgtype.Text
+	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    pgtype.Int4
+	UserID    int32
 }
 
 type User struct {
