@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	model "github.com/RomanAgaltsev/keyper/internal/model"
+	backoff "github.com/cenkalti/backoff/v5"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -43,74 +44,74 @@ func (m *MockSecretRepository) EXPECT() *MockSecretRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockSecretRepository) Create(ctx context.Context, secret model.Secret) (uuid.UUID, error) {
+func (m *MockSecretRepository) Create(ctx context.Context, ro []backoff.RetryOption, secret model.Secret) (uuid.UUID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, secret)
+	ret := m.ctrl.Call(m, "Create", ctx, ro, secret)
 	ret0, _ := ret[0].(uuid.UUID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockSecretRepositoryMockRecorder) Create(ctx, secret any) *gomock.Call {
+func (mr *MockSecretRepositoryMockRecorder) Create(ctx, ro, secret any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSecretRepository)(nil).Create), ctx, secret)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockSecretRepository)(nil).Create), ctx, ro, secret)
 }
 
 // Delete mocks base method.
-func (m *MockSecretRepository) Delete(ctx context.Context, secretID uuid.UUID) error {
+func (m *MockSecretRepository) Delete(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, secretID)
+	ret := m.ctrl.Call(m, "Delete", ctx, ro, secretID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockSecretRepositoryMockRecorder) Delete(ctx, secretID any) *gomock.Call {
+func (mr *MockSecretRepositoryMockRecorder) Delete(ctx, ro, secretID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSecretRepository)(nil).Delete), ctx, secretID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockSecretRepository)(nil).Delete), ctx, ro, secretID)
 }
 
 // Get mocks base method.
-func (m *MockSecretRepository) Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error) {
+func (m *MockSecretRepository) Get(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) (model.Secret, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, secretID)
+	ret := m.ctrl.Call(m, "Get", ctx, ro, secretID)
 	ret0, _ := ret[0].(model.Secret)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockSecretRepositoryMockRecorder) Get(ctx, secretID any) *gomock.Call {
+func (mr *MockSecretRepositoryMockRecorder) Get(ctx, ro, secretID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSecretRepository)(nil).Get), ctx, secretID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockSecretRepository)(nil).Get), ctx, ro, secretID)
 }
 
 // List mocks base method.
-func (m *MockSecretRepository) List(ctx context.Context, user model.User) (model.Secrets, error) {
+func (m *MockSecretRepository) List(ctx context.Context, ro []backoff.RetryOption, user model.User) (model.Secrets, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx, user)
+	ret := m.ctrl.Call(m, "List", ctx, ro, user)
 	ret0, _ := ret[0].(model.Secrets)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockSecretRepositoryMockRecorder) List(ctx, user any) *gomock.Call {
+func (mr *MockSecretRepositoryMockRecorder) List(ctx, ro, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockSecretRepository)(nil).List), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockSecretRepository)(nil).List), ctx, ro, user)
 }
 
 // Update mocks base method.
-func (m *MockSecretRepository) Update(ctx context.Context, secret model.Secret) error {
+func (m *MockSecretRepository) Update(ctx context.Context, ro []backoff.RetryOption, secret model.Secret, updateFn func(model.Secret, model.Secret) (bool, error)) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, secret)
+	ret := m.ctrl.Call(m, "Update", ctx, ro, secret, updateFn)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockSecretRepositoryMockRecorder) Update(ctx, secret any) *gomock.Call {
+func (mr *MockSecretRepositoryMockRecorder) Update(ctx, ro, secret, updateFn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockSecretRepository)(nil).Update), ctx, secret)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockSecretRepository)(nil).Update), ctx, ro, secret, updateFn)
 }

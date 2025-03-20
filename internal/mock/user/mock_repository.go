@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	model "github.com/RomanAgaltsev/keyper/internal/model"
+	backoff "github.com/cenkalti/backoff/v5"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -42,30 +43,30 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockUserRepository) Create(ctx context.Context, user model.User) error {
+func (m *MockUserRepository) Create(ctx context.Context, ro []backoff.RetryOption, user model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", ctx, user)
+	ret := m.ctrl.Call(m, "Create", ctx, ro, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockUserRepositoryMockRecorder) Create(ctx, user any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Create(ctx, ro, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), ctx, user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockUserRepository)(nil).Create), ctx, ro, user)
 }
 
 // Get mocks base method.
-func (m *MockUserRepository) Get(ctx context.Context, login string) (model.User, error) {
+func (m *MockUserRepository) Get(ctx context.Context, ro []backoff.RetryOption, login string) (model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", ctx, login)
+	ret := m.ctrl.Call(m, "Get", ctx, ro, login)
 	ret0, _ := ret[0].(model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockUserRepositoryMockRecorder) Get(ctx, login any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) Get(ctx, ro, login any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserRepository)(nil).Get), ctx, login)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserRepository)(nil).Get), ctx, ro, login)
 }
