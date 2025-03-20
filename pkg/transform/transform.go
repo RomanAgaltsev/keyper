@@ -17,7 +17,7 @@ func PbToUser(src *pb.UserCredentials) model.User {
 
 	result := model.User{
 		Login:    src.Login,
-		Password: []byte(src.Key),
+		Password: src.Key,
 	}
 
 	return result

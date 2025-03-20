@@ -9,7 +9,7 @@ import (
 type User struct {
 	ID       uint64
 	Login    string
-	Password []byte
+	Password string
 }
 
 type SecretType string
