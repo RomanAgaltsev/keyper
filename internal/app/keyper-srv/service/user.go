@@ -4,9 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/cenkalti/backoff/v5"
+
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
-	"github.com/cenkalti/backoff/v5"
 )
 
 var _ UserRepository = (*repository.UserRepository)(nil)
