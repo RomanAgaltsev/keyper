@@ -5,6 +5,7 @@ go 1.24.1
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.5-20250307204501-0409229c3780.1
 	github.com/bufbuild/protovalidate-go v0.9.2
+	github.com/cenkalti/backoff/v5 v5.0.2
 	github.com/go-chi/jwtauth/v5 v5.3.2
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3

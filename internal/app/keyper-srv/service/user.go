@@ -6,13 +6,14 @@ import (
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
+	"github.com/cenkalti/backoff/v5"
 )
 
 var _ UserRepository = (*repository.UserRepository)(nil)
 
 type UserRepository interface {
-	Create(ctx context.Context, user model.User) error
-	Get(ctx context.Context, login string) (model.User, error)
+	Create(ctx context.Context, ro []backoff.RetryOption, user model.User) error
+	Get(ctx context.Context, ro []backoff.RetryOption, login string) (model.User, error)
 }
 
 func NewUserService(log *slog.Logger, repository *repository.UserRepository) *UserService {

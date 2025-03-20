@@ -8,16 +8,17 @@ import (
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
+	"github.com/cenkalti/backoff/v5"
 )
 
 var _ SecretRepository = (*repository.SecretRepository)(nil)
 
 type SecretRepository interface {
-	Create(ctx context.Context, secret model.Secret) (uuid.UUID, error)
-	Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error)
-	List(ctx context.Context, user model.User) (model.Secrets, error)
-	Update(ctx context.Context, secret model.Secret) error
-	Delete(ctx context.Context, secretID uuid.UUID) error
+	Create(ctx context.Context, ro []backoff.RetryOption, secret model.Secret) (uuid.UUID, error)
+	Get(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) (model.Secret, error)
+	List(ctx context.Context, ro []backoff.RetryOption, user model.User) (model.Secrets, error)
+	Update(ctx context.Context, ro []backoff.RetryOption, secret model.Secret) error
+	Delete(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) error
 }
 
 func NewSecretService(log *slog.Logger, repository *repository.SecretRepository) *SecretService {
