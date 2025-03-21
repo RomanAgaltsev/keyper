@@ -228,8 +228,8 @@ func (r *SecretRepository) Update(
 	updateFn func(dst, src model.Secret) (bool, error),
 ) error {
 	return database.WithTx(ctx, r.db, func(ctx context.Context, tx pgx.Tx) error {
-		fGet := func() (queries.GetSecretRow, error) {
-			return r.q.GetSecret(ctx, secret.ID)
+		fGet := func() (queries.GetSecretForUpdateRow, error) {
+			return r.q.GetSecretForUpdate(ctx, secret.ID)
 		}
 
 		secretRow, err := backoff.Retry(ctx, fGet, ro...)
