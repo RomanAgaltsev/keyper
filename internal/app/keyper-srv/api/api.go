@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/bufbuild/protovalidate-go"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -50,11 +49,6 @@ type userAPI struct {
 }
 
 func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1Request) (*pb.RegisterUserV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "userAPI.RegisterUser"
 
 	user := transform.PbToUser(request.Credentials)
@@ -78,11 +72,6 @@ func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1
 }
 
 func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Request) (*pb.LoginUserV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "userAPI.LoginUser"
 
 	user := transform.PbToUser(request.Credentials)
@@ -119,11 +108,6 @@ type secretAPI struct {
 }
 
 func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecretV1Request) (*pb.CreateSecretV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "secretAPI.CreateSecret"
 
 	// TODO: add user from request to secret
@@ -152,11 +136,6 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 }
 
 func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Request) (*pb.GetSecretV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "secretAPI.GetSecret"
 
 	// TODO: transform secret ID from request
@@ -184,11 +163,6 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 }
 
 func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.ServerStreamingServer[pb.ListSecretsV1Response]) error {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "secretAPI.ListSecrets"
 
 	// TODO: transform user from request
@@ -208,11 +182,6 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 }
 
 func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecretV1Request) (*pb.UpdateSecretV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "secretAPI.UpdateSecret"
 
 	secret := transform.PbToSecret(request.Secret)
@@ -237,11 +206,6 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 }
 
 func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecretV1Request) (*pb.DeleteSecretV1Response, error) {
-	// TODO: move validation to middleware
-	if err := protovalidate.Validate(request); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
 	const op = "secretAPI.DeleteSecret"
 
 	// TODO: transform secret ID from request
