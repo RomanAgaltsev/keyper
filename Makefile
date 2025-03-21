@@ -1,3 +1,10 @@
+POSTGRES_NAME = postgres17
+POSTGRES_USER = postgres
+POSTGRES_PASSWORD = postgres
+POSTGRES_IMAGE = postgres:17
+POSTGRES_HOST = localhost:5432
+POSTGRES_DB = keyper
+
 # ==============================================================================
 # Code generation
 
@@ -69,3 +76,30 @@ clean:	# Clean modules cache
 .PHONY: doc
 doc:	# godoc
 	godoc -http=:6060
+
+# ==============================================================================
+# Database
+
+.PHONY: pg-up
+pg-up: # Run Postgres docker image
+	docker run --name $(POSTGRES_NAME) -e POSTGRES_USER=$(POSTGRES_USER) -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) -p 5432:5432 -d $(POSTGRES_IMAGE)
+
+.PHONY: postgres-stop
+postgres-stop:
+	docker stop $(POSTGRES_NAME)
+
+.PHONY: create-db
+create-db:
+	docker exec -it $(POSTGRES_NAME) createdb --username=$(POSTGRES_USER) --owner=$(POSTGRES_USER) $(POSTGRES_DB)
+
+.PHONY: drop-db
+drop-db:
+	docker exec -it $(POSTGRES_NAME) dropdb --username=$(POSTGRES_USER) $(POSTGRES_DB)
+
+.PHONY: mig-up
+mig-up:	# Apply all available migrations
+	goose -dir migrations postgres "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST)/$(POSTGRES_DB)?sslmode=disable" up
+
+.PHONY: mig-down
+mig-down: # Roll back a single migration from the current version
+	goose -dir migrations postgres "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST)/$(POSTGRES_DB)?sslmode=disable" down
