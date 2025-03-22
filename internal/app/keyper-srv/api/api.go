@@ -12,6 +12,7 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 	"github.com/RomanAgaltsev/keyper/internal/model"
+	"github.com/RomanAgaltsev/keyper/internal/pkg/auth"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 	"github.com/RomanAgaltsev/keyper/pkg/transform"
 )
@@ -110,8 +111,14 @@ type secretAPI struct {
 func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecretV1Request) (*pb.CreateSecretV1Response, error) {
 	const op = "secretAPI.CreateSecret"
 
-	// TODO: add user from request to secret
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Unauthenticated, "missing user ID")
+	}
+
 	secret := transform.PbToSecret(request.Secret)
+	secret.UserID = userID
 
 	// TODO: add conflict handling
 	// TODO: add errors messages
@@ -138,8 +145,11 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Request) (*pb.GetSecretV1Response, error) {
 	const op = "secretAPI.GetSecret"
 
-	// TODO: transform secret ID from request
-	secretID := uuid.New()
+	secretID, err := uuid.Parse(request.Id)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, "please look at logs")
+	}
 
 	// TODO: add errors messages
 	secret, err := a.secret.Get(ctx, secretID)
@@ -208,11 +218,14 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecretV1Request) (*pb.DeleteSecretV1Response, error) {
 	const op = "secretAPI.DeleteSecret"
 
-	// TODO: transform secret ID from request
-	secretID := uuid.New()
+	secretID, err := uuid.Parse(request.Id)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, "please look at logs")
+	}
 
 	// TODO: add errors messages
-	err := a.secret.Delete(ctx, secretID)
+	err = a.secret.Delete(ctx, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")

@@ -2,6 +2,8 @@
 package auth
 
 import (
+	"context"
+	"errors"
 	"time"
 
 	"github.com/RomanAgaltsev/keyper/internal/model"
@@ -31,6 +33,8 @@ const (
 	TokenExpClaimName TokenExpName = "exp"
 )
 
+var ErrNoUserID = errors.New("no user ID provided")
+
 // NewAuth returns new JWTAuth.
 func NewAuth(secretKey string) *jwtauth.JWTAuth {
 	return jwtauth.New(JWTSignAlgorithm, []byte(secretKey), nil)
@@ -43,6 +47,20 @@ func NewJWTToken(ja *jwtauth.JWTAuth, user model.User, duration time.Duration) (
 		string(UserLoginClaimName): user.Login,
 		string(TokenExpClaimName):  time.Now().Add(duration).Unix(),
 	})
+}
+
+func GetUserUID(ctx context.Context) (int32, error) {
+	uidInterface := ctx.Value(UserIDClaimName)
+	if uidInterface == nil {
+		return 0, ErrNoUserID
+	}
+
+	uidInt32, ok := uidInterface.(int32)
+	if !ok {
+		return 0, ErrNoUserID
+	}
+
+	return uidInt32, nil
 }
 
 // HashPassword generates and returns hash of a given password.
