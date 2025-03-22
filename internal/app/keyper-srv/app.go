@@ -129,7 +129,7 @@ func (a *App) Run() error {
 	secretRepository := repository.NewSecretRepository(dbpool)
 	secretService := service.NewSecretService(a.log, secretRepository)
 
-	gRPCServer := server.NewGRPCServer(a.log, a.cfg.GRPC, userService, secretService)
+	gRPCServer := server.NewGRPCServer(a.log, a.cfg, userService, secretService)
 
 	g.Go(func() (err error) {
 		const op = "app.RunGRPCServer"

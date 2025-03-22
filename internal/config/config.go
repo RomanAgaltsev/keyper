@@ -25,6 +25,7 @@ type Config struct {
 // AppConfig - application configuration.
 type AppConfig struct {
 	DatabaseURI string `yaml:"database_uri"` // Address for database connection
+	SecretKey   string `yaml:"secret_key"`   // Authentication secret key
 }
 
 // GRPCConfig - GRPC-server configuration.
