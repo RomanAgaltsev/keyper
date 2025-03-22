@@ -225,11 +225,14 @@ func (r *SecretRepository) Update(
 	ctx context.Context,
 	ro []backoff.RetryOption,
 	secret model.Secret,
-	updateFn func(dst, src model.Secret) (bool, error),
+	updateFn func(secretTo, secretFrom model.Secret) (bool, error),
 ) error {
 	return database.WithTx(ctx, r.db, func(ctx context.Context, tx pgx.Tx) error {
+		// Create query with transaction
+		qtx := r.q.WithTx(tx)
+
 		fGet := func() (queries.GetSecretForUpdateRow, error) {
-			return r.q.GetSecretForUpdate(ctx, secret.ID)
+			return qtx.GetSecretForUpdate(ctx, secret.ID)
 		}
 
 		secretRow, err := backoff.Retry(ctx, fGet, ro...)
@@ -237,7 +240,7 @@ func (r *SecretRepository) Update(
 			return err
 		}
 
-		dst := model.Secret{
+		secretTo := model.Secret{
 			ID:        secret.ID,
 			Name:      secretRow.Name,
 			Type:      model.SecretType(secretRow.Type),
@@ -249,7 +252,7 @@ func (r *SecretRepository) Update(
 			UserID:    secretRow.UserID,
 		}
 
-		ok, err := updateFn(dst, secret)
+		ok, err := updateFn(secretTo, secret)
 		if err != nil {
 			return err
 		}
@@ -259,7 +262,7 @@ func (r *SecretRepository) Update(
 		}
 
 		fUpdate := func() (bool, error) {
-			err := r.q.UpdateSecret(ctx, queries.UpdateSecretParams{
+			err := qtx.UpdateSecret(ctx, queries.UpdateSecretParams{
 				ID:        secret.ID,
 				Name:      secret.Name,
 				Type:      queries.SecretType(secret.Type),

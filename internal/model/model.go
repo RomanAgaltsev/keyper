@@ -34,28 +34,10 @@ type Secret struct {
 	UserID    int32
 }
 
+func (s *Secret) UpdateWith(secretFrom Secret) error {
+	// TODO: implement secret update logic
+	// TODO: lock secret that updates
+	return nil
+}
+
 type Secrets []Secret
-
-const (
-	Account uint8 = 1 + iota
-	Email
-	Card
-	Binary
-)
-
-type RecordType uint8
-
-type Record struct {
-	ID          uint
-	Type        RecordType
-	Address     string
-	Credentials []Credential
-	Comment     string
-}
-
-type Credential struct {
-	Login     string
-	Password  string
-	CreatedAt time.Time
-	Comment   string
-}

@@ -35,21 +35,32 @@ type SecretService struct {
 }
 
 func (s *SecretService) Create(ctx context.Context, secret model.Secret) (uuid.UUID, error) {
-	return uuid.UUID{}, nil
+	secretID, err := s.repository.Create(ctx, repository.DefaultRetryOpts, secret)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+
+	return secretID, nil
 }
 
 func (s *SecretService) Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error) {
-	return model.Secret{}, nil
+	return s.repository.Get(ctx, repository.DefaultRetryOpts, secretID)
 }
 
 func (s *SecretService) List(ctx context.Context, user model.User) (model.Secrets, error) {
-	return nil, nil
+	return s.repository.List(ctx, repository.DefaultRetryOpts, user)
 }
 
 func (s *SecretService) Update(ctx context.Context, secret model.Secret) error {
-	return nil
+	return s.repository.Update(ctx, repository.DefaultRetryOpts, secret, func(secretTo, secretFrom model.Secret) (bool, error) {
+		err := secretTo.UpdateWith(secretFrom)
+		if err != nil {
+			return false, nil
+		}
+		return true, nil
+	})
 }
 
 func (s *SecretService) Delete(ctx context.Context, secretID uuid.UUID) error {
-	return nil
+	return s.repository.Delete(ctx, repository.DefaultRetryOpts, secretID)
 }
