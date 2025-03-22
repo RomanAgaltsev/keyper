@@ -44,7 +44,7 @@ type UserRepository struct {
 func (r *UserRepository) Create(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	user model.User,
+	user *model.User,
 ) error {
 	// PG error to catch the conflict
 	var pgErr *pgconn.PgError
@@ -89,7 +89,7 @@ func (r *UserRepository) Get(
 	ro []backoff.RetryOption,
 	login string,
 ) (
-	model.User,
+	*model.User,
 	error,
 ) {
 	// Create a function to wrap user getting with exponential backoff
@@ -97,23 +97,21 @@ func (r *UserRepository) Get(
 		return r.q.GetUser(ctx, login)
 	}
 
-	var user model.User
-
 	// Get user from DB
 	userRow, err := backoff.Retry(ctx, f, ro...)
 
 	// Check if something has gone wrong
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return user, err
+		return nil, err
 	}
 
 	// Check if there is nothing to return
 	if errors.Is(err, sql.ErrNoRows) {
-		return user, nil
+		return nil, nil
 	}
 
 	// Return user
-	return model.User{
+	return &model.User{
 		Login:    login,
 		Password: userRow.Password,
 	}, nil
@@ -134,7 +132,7 @@ type SecretRepository struct {
 func (r *SecretRepository) Create(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	secret model.Secret,
+	secret *model.Secret,
 ) (
 	uuid.UUID,
 	error,
@@ -152,7 +150,7 @@ func (r *SecretRepository) Create(
 
 	secretID, err := backoff.Retry(ctx, f, ro...)
 	if err != nil {
-		return uuid.New(), err
+		return uuid.Nil, err
 	}
 
 	return secretID, nil
@@ -163,7 +161,7 @@ func (r *SecretRepository) Get(
 	ro []backoff.RetryOption,
 	secretID uuid.UUID,
 ) (
-	model.Secret,
+	*model.Secret,
 	error,
 ) {
 	f := func() (queries.GetSecretRow, error) {
@@ -172,10 +170,10 @@ func (r *SecretRepository) Get(
 
 	secretRow, err := backoff.Retry(ctx, f, ro...)
 	if err != nil {
-		return model.Secret{}, err
+		return nil, err
 	}
 
-	return model.Secret{
+	return &model.Secret{
 		ID:        secretID,
 		Name:      secretRow.Name,
 		Type:      model.SecretType(secretRow.Type),
@@ -191,7 +189,7 @@ func (r *SecretRepository) Get(
 func (r *SecretRepository) List(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	user model.User,
+	user *model.User,
 ) (
 	model.Secrets,
 	error,
@@ -205,9 +203,9 @@ func (r *SecretRepository) List(
 		return nil, err
 	}
 
-	secrets := make([]model.Secret, 0, len(listSecretsRow))
+	secrets := make([]*model.Secret, 0, len(listSecretsRow))
 	for _, secret := range listSecretsRow {
-		secrets = append(secrets, model.Secret{
+		secrets = append(secrets, &model.Secret{
 			ID:        secret.ID,
 			Name:      secret.Name,
 			Type:      model.SecretType(secret.Type),
@@ -224,8 +222,8 @@ func (r *SecretRepository) List(
 func (r *SecretRepository) Update(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	secret model.Secret,
-	updateFn func(secretTo, secretFrom model.Secret) (bool, error),
+	secret *model.Secret,
+	updateFn func(secretTo, secretFrom *model.Secret) (bool, error),
 ) error {
 	return database.WithTx(ctx, r.db, func(ctx context.Context, tx pgx.Tx) error {
 		// Create query with transaction
@@ -240,7 +238,7 @@ func (r *SecretRepository) Update(
 			return err
 		}
 
-		secretTo := model.Secret{
+		secretTo := &model.Secret{
 			ID:        secret.ID,
 			Name:      secretRow.Name,
 			Type:      model.SecretType(secretRow.Type),

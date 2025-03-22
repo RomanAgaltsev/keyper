@@ -19,8 +19,8 @@ var (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, ro []backoff.RetryOption, user model.User) error
-	Get(ctx context.Context, ro []backoff.RetryOption, login string) (model.User, error)
+	Create(ctx context.Context, ro []backoff.RetryOption, user *model.User) error
+	Get(ctx context.Context, ro []backoff.RetryOption, login string) (*model.User, error)
 }
 
 func NewUserService(log *slog.Logger, repository *repository.UserRepository) *UserService {
@@ -36,7 +36,7 @@ type UserService struct {
 	repository *repository.UserRepository
 }
 
-func (s *UserService) Register(ctx context.Context, user model.User) error {
+func (s *UserService) Register(ctx context.Context, user *model.User) error {
 	// TODO: password hashing
 
 	// Create user in the repository
@@ -55,7 +55,7 @@ func (s *UserService) Register(ctx context.Context, user model.User) error {
 	return nil
 }
 
-func (s *UserService) Login(ctx context.Context, user model.User) error {
+func (s *UserService) Login(ctx context.Context, user *model.User) error {
 	// Ger user from repository
 	userInRepo, err := s.repository.Get(ctx, repository.DefaultRetryOpts, user.Login)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *UserService) Login(ctx context.Context, user model.User) error {
 	// TODO: password hashing
 
 	// If user doesn`t exist or password is wrong
-	if (userInRepo == model.User{}) || !(user.Password == userInRepo.Password) {
+	if (userInRepo == nil) || !(user.Password == userInRepo.Password) {
 		return ErrLoginWrong
 	}
 

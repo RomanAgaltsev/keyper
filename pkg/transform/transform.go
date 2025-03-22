@@ -10,9 +10,9 @@ import (
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 )
 
-func PbToUser(src *pb.UserCredentials) model.User {
+func PbToUser(src *pb.UserCredentials) *model.User {
 	if src == nil {
-		return model.User{}
+		return nil
 	}
 
 	result := model.User{
@@ -20,13 +20,12 @@ func PbToUser(src *pb.UserCredentials) model.User {
 		Password: src.Key,
 	}
 
-	return result
+	return &result
 }
 
-// TODO: model.Secret to pointer
-func PbToSecret(src *pb.Secret) model.Secret {
+func PbToSecret(src *pb.Secret) *model.Secret {
 	if src == nil {
-		return model.Secret{}
+		return nil
 	}
 
 	secretType := model.SecretTypeUNSPECIFIED
@@ -41,8 +40,7 @@ func PbToSecret(src *pb.Secret) model.Secret {
 		secretType = model.SecretTypeCARD
 	}
 
-	// TODO: model.Secret to pointer
-	result := model.Secret{
+	result := &model.Secret{
 		ID:        uuid.MustParse(*src.Id),
 		Name:      src.Name,
 		Type:      secretType,
@@ -56,8 +54,7 @@ func PbToSecret(src *pb.Secret) model.Secret {
 	return result
 }
 
-// TODO: model.Secret to pointer
-func SecretToPb(src model.Secret) *pb.Secret {
+func SecretToPb(src *model.Secret) *pb.Secret {
 	secretID := src.ID.String()
 
 	var secretType pb.SecretType = 0

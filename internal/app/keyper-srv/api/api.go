@@ -22,15 +22,15 @@ var (
 )
 
 type UserService interface {
-	Register(ctx context.Context, user model.User) error
-	Login(ctx context.Context, user model.User) error
+	Register(ctx context.Context, user *model.User) error
+	Login(ctx context.Context, user *model.User) error
 }
 
 type SecretService interface {
-	Create(ctx context.Context, secret model.Secret) (uuid.UUID, error)
-	Get(ctx context.Context, secretID uuid.UUID) (model.Secret, error)
-	List(ctx context.Context, user model.User) (model.Secrets, error)
-	Update(ctx context.Context, secret model.Secret) error
+	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
+	Get(ctx context.Context, secretID uuid.UUID) (*model.Secret, error)
+	List(ctx context.Context, user *model.User) (model.Secrets, error)
+	Update(ctx context.Context, secret *model.Secret) error
 	Delete(ctx context.Context, secretID uuid.UUID) error
 }
 
@@ -166,7 +166,7 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 	const op = "secretAPI.ListSecrets"
 
 	// TODO: transform user from request
-	user := model.User{}
+	user := &model.User{}
 
 	// TODO: add errors messages
 	_, err := a.secret.List(stream.Context(), user)

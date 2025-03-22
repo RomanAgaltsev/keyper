@@ -34,10 +34,10 @@ type Secret struct {
 	UserID    int32
 }
 
-func (s *Secret) UpdateWith(secretFrom Secret) error {
+func (s *Secret) UpdateWith(secretFrom *Secret) error {
 	// TODO: implement secret update logic
 	// TODO: lock secret that updates
 	return nil
 }
 
-type Secrets []Secret
+type Secrets []*Secret
