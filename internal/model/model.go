@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID       int32
+	ID       uuid.UUID
 	Login    string
 	Password string
 }
@@ -31,7 +31,7 @@ type Secret struct {
 	Comment   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    int32
+	UserID    uuid.UUID
 }
 
 func (s *Secret) UpdateWith(secretFrom *Secret) error {

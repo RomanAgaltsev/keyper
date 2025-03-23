@@ -4,6 +4,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/RomanAgaltsev/keyper/internal/model"
@@ -49,18 +50,23 @@ func NewJWTToken(ja *jwtauth.JWTAuth, user model.User, duration time.Duration) (
 	})
 }
 
-func GetUserUID(ctx context.Context) (int32, error) {
+func GetUserUID(ctx context.Context) (uuid.UUID, error) {
 	uidInterface := ctx.Value(UserIDClaimName)
 	if uidInterface == nil {
-		return 0, ErrNoUserID
+		return uuid.Nil, ErrNoUserID
 	}
 
-	uidInt32, ok := uidInterface.(int32)
+	uidString, ok := uidInterface.(string)
 	if !ok {
-		return 0, ErrNoUserID
+		return uuid.Nil, ErrNoUserID
 	}
 
-	return uidInt32, nil
+	uid, err := uuid.Parse(uidString)
+	if err != nil {
+		return uuid.Nil, ErrNoUserID
+	}
+
+	return uid, nil
 }
 
 // HashPassword generates and returns hash of a given password.

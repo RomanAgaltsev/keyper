@@ -20,6 +20,11 @@ message UserCredentials {
         (buf.validate.field).required = true,
         (buf.validate.field).string.min_len = 1
     ];
+
+     // User identifier (uuid).
+     optional string id = 3 [
+        (buf.validate.field).string.uuid = true
+    ];
 }
 
 // RegisterLoginResult contains result of either user registration or login.
@@ -27,6 +32,11 @@ message RegisterLoginResult {
     // Security token.
     string token = 1 [
         (buf.validate.field).required = true
+    ];
+
+     // User identifier (uuid).
+     optional string id = 2 [
+        (buf.validate.field).string.uuid = true
     ];
 }
 

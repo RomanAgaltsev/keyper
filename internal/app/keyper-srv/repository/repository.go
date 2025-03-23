@@ -87,14 +87,14 @@ func (r *UserRepository) Create(
 func (r *UserRepository) Get(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	login string,
+	userID uuid.UUID,
 ) (
 	*model.User,
 	error,
 ) {
 	// Create a function to wrap user getting with exponential backoff
 	f := func() (queries.GetUserRow, error) {
-		return r.q.GetUser(ctx, login)
+		return r.q.GetUser(ctx, userID)
 	}
 
 	// Get user from DB
@@ -112,7 +112,8 @@ func (r *UserRepository) Get(
 
 	// Return user
 	return &model.User{
-		Login:    login,
+		ID:       userID,
+		Login:    userRow.Login,
 		Password: userRow.Password,
 	}, nil
 }
@@ -189,13 +190,13 @@ func (r *SecretRepository) Get(
 func (r *SecretRepository) List(
 	ctx context.Context,
 	ro []backoff.RetryOption,
-	user *model.User,
+	userID uuid.UUID,
 ) (
 	model.Secrets,
 	error,
 ) {
 	f := func() ([]queries.ListSecretsRow, error) {
-		return r.q.ListSecrets(ctx, user.ID)
+		return r.q.ListSecrets(ctx, userID)
 	}
 
 	listSecretsRow, err := backoff.Retry(ctx, f, ro...)

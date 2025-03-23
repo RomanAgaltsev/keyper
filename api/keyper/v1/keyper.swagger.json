@@ -407,6 +407,10 @@
         "token": {
           "type": "string",
           "description": "Security token."
+        },
+        "id": {
+          "type": "string",
+          "description": "User identifier (uuid)."
         }
       },
       "description": "RegisterLoginResult contains result of either user registration or login."
@@ -518,6 +522,10 @@
         "key": {
           "type": "string",
           "description": "User encryption key."
+        },
+        "id": {
+          "type": "string",
+          "description": "User identifier (uuid)."
         }
       },
       "description": "UserCredentials contains credentials either for user registration or login."

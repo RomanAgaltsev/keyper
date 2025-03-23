@@ -3,9 +3,9 @@ INSERT INTO users (login, password)
 VALUES ($1, $2) RETURNING id;
 
 -- name: GetUser :one
-SELECT id, password, created_at
+SELECT login, password, created_at
 FROM users
-WHERE login = $1 LIMIT 1;
+WHERE id = $1 LIMIT 1;
 
 -- name: CreateSecret :one
 INSERT INTO secrets (name, type, metadata, data, comment, user_id)

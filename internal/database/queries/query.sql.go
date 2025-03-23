@@ -23,7 +23,7 @@ type CreateSecretParams struct {
 	Metadata []byte
 	Data     []byte
 	Comment  *string
-	UserID   int32
+	UserID   uuid.UUID
 }
 
 func (q *Queries) CreateSecret(ctx context.Context, arg CreateSecretParams) (uuid.UUID, error) {
@@ -50,9 +50,9 @@ type CreateUserParams struct {
 	Password string
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, createUser, arg.Login, arg.Password)
-	var id int32
+	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
 }
@@ -82,7 +82,7 @@ type GetSecretRow struct {
 	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    int32
+	UserID    uuid.UUID
 }
 
 func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (GetSecretRow, error) {
@@ -117,7 +117,7 @@ type GetSecretForUpdateRow struct {
 	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    int32
+	UserID    uuid.UUID
 }
 
 func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (GetSecretForUpdateRow, error) {
@@ -137,21 +137,21 @@ func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (GetSecr
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, password, created_at
+SELECT login, password, created_at
 FROM users
-WHERE login = $1 LIMIT 1
+WHERE id = $1 LIMIT 1
 `
 
 type GetUserRow struct {
-	ID        int32
+	Login     string
 	Password  string
 	CreatedAt time.Time
 }
 
-func (q *Queries) GetUser(ctx context.Context, login string) (GetUserRow, error) {
-	row := q.db.QueryRow(ctx, getUser, login)
+func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (GetUserRow, error) {
+	row := q.db.QueryRow(ctx, getUser, id)
 	var i GetUserRow
-	err := row.Scan(&i.ID, &i.Password, &i.CreatedAt)
+	err := row.Scan(&i.Login, &i.Password, &i.CreatedAt)
 	return i, err
 }
 
@@ -172,7 +172,7 @@ type ListSecretsRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) ListSecrets(ctx context.Context, userID int32) ([]ListSecretsRow, error) {
+func (q *Queries) ListSecrets(ctx context.Context, userID uuid.UUID) ([]ListSecretsRow, error) {
 	rows, err := q.db.Query(ctx, listSecrets, userID)
 	if err != nil {
 		return nil, err
@@ -215,7 +215,7 @@ type UpdateSecretParams struct {
 	Comment   *string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	UserID    int32
+	UserID    uuid.UUID
 }
 
 func (q *Queries) UpdateSecret(ctx context.Context, arg UpdateSecretParams) error {

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/cenkalti/backoff/v5"
+	"github.com/google/uuid"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
@@ -20,7 +21,7 @@ var (
 
 type UserRepository interface {
 	Create(ctx context.Context, ro []backoff.RetryOption, user *model.User) error
-	Get(ctx context.Context, ro []backoff.RetryOption, login string) (*model.User, error)
+	Get(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (*model.User, error)
 }
 
 func NewUserService(log *slog.Logger, repository *repository.UserRepository) *UserService {
@@ -57,7 +58,7 @@ func (s *UserService) Register(ctx context.Context, user *model.User) error {
 
 func (s *UserService) Login(ctx context.Context, user *model.User) error {
 	// Ger user from repository
-	userInRepo, err := s.repository.Get(ctx, repository.DefaultRetryOpts, user.Login)
+	userInRepo, err := s.repository.Get(ctx, repository.DefaultRetryOpts, user.ID)
 	if err != nil {
 		return err
 	}

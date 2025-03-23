@@ -30,7 +30,7 @@ type UserService interface {
 type SecretService interface {
 	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
 	Get(ctx context.Context, secretID uuid.UUID) (*model.Secret, error)
-	List(ctx context.Context, user *model.User) (model.Secrets, error)
+	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)
 	Update(ctx context.Context, secret *model.Secret) error
 	Delete(ctx context.Context, secretID uuid.UUID) error
 }
@@ -179,7 +179,7 @@ func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.
 	user := &model.User{}
 
 	// TODO: add errors messages
-	_, err := a.secret.List(stream.Context(), user)
+	_, err := a.secret.List(stream.Context(), user.ID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return status.Error(codes.Internal, "please look at logs")

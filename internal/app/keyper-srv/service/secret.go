@@ -16,7 +16,7 @@ var _ SecretRepository = (*repository.SecretRepository)(nil)
 type SecretRepository interface {
 	Create(ctx context.Context, ro []backoff.RetryOption, secret *model.Secret) (uuid.UUID, error)
 	Get(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) (*model.Secret, error)
-	List(ctx context.Context, ro []backoff.RetryOption, user *model.User) (model.Secrets, error)
+	List(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (model.Secrets, error)
 	Update(ctx context.Context, ro []backoff.RetryOption, secret *model.Secret, updateFn func(dst, src *model.Secret) (bool, error)) error
 	Delete(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) error
 }
@@ -47,8 +47,8 @@ func (s *SecretService) Get(ctx context.Context, secretID uuid.UUID) (*model.Sec
 	return s.repository.Get(ctx, repository.DefaultRetryOpts, secretID)
 }
 
-func (s *SecretService) List(ctx context.Context, user *model.User) (model.Secrets, error) {
-	return s.repository.List(ctx, repository.DefaultRetryOpts, user)
+func (s *SecretService) List(ctx context.Context, userID uuid.UUID) (model.Secrets, error) {
+	return s.repository.List(ctx, repository.DefaultRetryOpts, userID)
 }
 
 func (s *SecretService) Update(ctx context.Context, secret *model.Secret) error {
