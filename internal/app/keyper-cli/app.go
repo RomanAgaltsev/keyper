@@ -4,6 +4,9 @@ import (
 	"log/slog"
 
 	"github.com/rivo/tview"
+
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-cli/tui"
+	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 )
 
 type App struct {
@@ -11,8 +14,6 @@ type App struct {
 
 	tviewApp   *tview.Application
 	tviewPages *tview.Pages
-
-	shortcuts []rune
 }
 
 func NewApp(log *slog.Logger) *App {
@@ -20,21 +21,16 @@ func NewApp(log *slog.Logger) *App {
 		log:        log,
 		tviewApp:   tview.NewApplication(),
 		tviewPages: tview.NewPages(),
-		shortcuts:  []rune{'1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'},
 	}
 }
 
 // Run runs the whole application.
 func (a *App) Run() error {
-	
-	err := a.tviewApp.
-		SetRoot(a.tviewPages, true).
-		EnableMouse(true).
-		EnablePaste(true).
-		Run()
+	a.tviewPages.AddPage("login", tui.LoginPage(), true, true)
+	a.tviewPages.AddPage("secrets", tui.SecretsPage(), true, true)
 
-	if err != nil {
-		return err
+	if err := a.tviewApp.SetRoot(a.tviewPages, true).Run(); err != nil {
+		a.log.Error("running TUI application", sl.Err(err))
 	}
 
 	return nil
