@@ -15,6 +15,9 @@ plugins:
     out: pkg
     opt: paths=source_relative
   - remote: buf.build/grpc-ecosystem/openapiv2
-    out: api
+    out: api/keyper/v1
+    opt:
+      - allow_merge=true
+      - merge_file_name=keyper
 inputs:
   - directory: proto

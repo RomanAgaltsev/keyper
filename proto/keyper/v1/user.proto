@@ -15,8 +15,8 @@ message UserCredentials {
         (buf.validate.field).string.email = true
     ];
 
-    // User encryption key.
-    string key = 2 [
+    // User password.
+    string password = 2 [
         (buf.validate.field).required = true,
         (buf.validate.field).string.min_len = 1
     ];

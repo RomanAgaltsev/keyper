@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -181,13 +182,13 @@ const (
 // The secret service definition.
 type SecretServiceClient interface {
 	// Creates new secret.
-	CreateSecretV1(ctx context.Context, in *CreateSecretV1Request, opts ...grpc.CallOption) (*CreateSecretV1Response, error)
+	CreateSecretV1(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateSecretV1Request, CreateSecretV1Response], error)
 	// Returns existed secret.
-	GetSecretV1(ctx context.Context, in *GetSecretV1Request, opts ...grpc.CallOption) (*GetSecretV1Response, error)
+	GetSecretV1(ctx context.Context, in *GetSecretV1Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetSecretV1Response], error)
 	// Returns a list of existed secrets.
-	ListSecretsV1(ctx context.Context, in *ListSecretsV1Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListSecretsV1Response], error)
+	ListSecretsV1(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListSecretsV1Response], error)
 	// Updates existed secret.
-	UpdateSecretV1(ctx context.Context, in *UpdateSecretV1Request, opts ...grpc.CallOption) (*UpdateSecretV1Response, error)
+	UpdateSecretV1(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UpdateSecretV1Request, UpdateSecretV1Response], error)
 	// Deletes existed secret.
 	DeleteSecretV1(ctx context.Context, in *DeleteSecretV1Request, opts ...grpc.CallOption) (*DeleteSecretV1Response, error)
 }
@@ -200,33 +201,45 @@ func NewSecretServiceClient(cc grpc.ClientConnInterface) SecretServiceClient {
 	return &secretServiceClient{cc}
 }
 
-func (c *secretServiceClient) CreateSecretV1(ctx context.Context, in *CreateSecretV1Request, opts ...grpc.CallOption) (*CreateSecretV1Response, error) {
+func (c *secretServiceClient) CreateSecretV1(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[CreateSecretV1Request, CreateSecretV1Response], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateSecretV1Response)
-	err := c.cc.Invoke(ctx, SecretService_CreateSecretV1_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SecretService_ServiceDesc.Streams[0], SecretService_CreateSecretV1_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[CreateSecretV1Request, CreateSecretV1Response]{ClientStream: stream}
+	return x, nil
 }
 
-func (c *secretServiceClient) GetSecretV1(ctx context.Context, in *GetSecretV1Request, opts ...grpc.CallOption) (*GetSecretV1Response, error) {
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_CreateSecretV1Client = grpc.ClientStreamingClient[CreateSecretV1Request, CreateSecretV1Response]
+
+func (c *secretServiceClient) GetSecretV1(ctx context.Context, in *GetSecretV1Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[GetSecretV1Response], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetSecretV1Response)
-	err := c.cc.Invoke(ctx, SecretService_GetSecretV1_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SecretService_ServiceDesc.Streams[1], SecretService_GetSecretV1_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[GetSecretV1Request, GetSecretV1Response]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
 
-func (c *secretServiceClient) ListSecretsV1(ctx context.Context, in *ListSecretsV1Request, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListSecretsV1Response], error) {
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_GetSecretV1Client = grpc.ServerStreamingClient[GetSecretV1Response]
+
+func (c *secretServiceClient) ListSecretsV1(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ListSecretsV1Response], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &SecretService_ServiceDesc.Streams[0], SecretService_ListSecretsV1_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SecretService_ServiceDesc.Streams[2], SecretService_ListSecretsV1_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ListSecretsV1Request, ListSecretsV1Response]{ClientStream: stream}
+	x := &grpc.GenericClientStream[emptypb.Empty, ListSecretsV1Response]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -239,15 +252,18 @@ func (c *secretServiceClient) ListSecretsV1(ctx context.Context, in *ListSecrets
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SecretService_ListSecretsV1Client = grpc.ServerStreamingClient[ListSecretsV1Response]
 
-func (c *secretServiceClient) UpdateSecretV1(ctx context.Context, in *UpdateSecretV1Request, opts ...grpc.CallOption) (*UpdateSecretV1Response, error) {
+func (c *secretServiceClient) UpdateSecretV1(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UpdateSecretV1Request, UpdateSecretV1Response], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateSecretV1Response)
-	err := c.cc.Invoke(ctx, SecretService_UpdateSecretV1_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &SecretService_ServiceDesc.Streams[3], SecretService_UpdateSecretV1_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[UpdateSecretV1Request, UpdateSecretV1Response]{ClientStream: stream}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_UpdateSecretV1Client = grpc.ClientStreamingClient[UpdateSecretV1Request, UpdateSecretV1Response]
 
 func (c *secretServiceClient) DeleteSecretV1(ctx context.Context, in *DeleteSecretV1Request, opts ...grpc.CallOption) (*DeleteSecretV1Response, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -266,13 +282,13 @@ func (c *secretServiceClient) DeleteSecretV1(ctx context.Context, in *DeleteSecr
 // The secret service definition.
 type SecretServiceServer interface {
 	// Creates new secret.
-	CreateSecretV1(context.Context, *CreateSecretV1Request) (*CreateSecretV1Response, error)
+	CreateSecretV1(grpc.ClientStreamingServer[CreateSecretV1Request, CreateSecretV1Response]) error
 	// Returns existed secret.
-	GetSecretV1(context.Context, *GetSecretV1Request) (*GetSecretV1Response, error)
+	GetSecretV1(*GetSecretV1Request, grpc.ServerStreamingServer[GetSecretV1Response]) error
 	// Returns a list of existed secrets.
-	ListSecretsV1(*ListSecretsV1Request, grpc.ServerStreamingServer[ListSecretsV1Response]) error
+	ListSecretsV1(*emptypb.Empty, grpc.ServerStreamingServer[ListSecretsV1Response]) error
 	// Updates existed secret.
-	UpdateSecretV1(context.Context, *UpdateSecretV1Request) (*UpdateSecretV1Response, error)
+	UpdateSecretV1(grpc.ClientStreamingServer[UpdateSecretV1Request, UpdateSecretV1Response]) error
 	// Deletes existed secret.
 	DeleteSecretV1(context.Context, *DeleteSecretV1Request) (*DeleteSecretV1Response, error)
 	mustEmbedUnimplementedSecretServiceServer()
@@ -285,17 +301,17 @@ type SecretServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSecretServiceServer struct{}
 
-func (UnimplementedSecretServiceServer) CreateSecretV1(context.Context, *CreateSecretV1Request) (*CreateSecretV1Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateSecretV1 not implemented")
+func (UnimplementedSecretServiceServer) CreateSecretV1(grpc.ClientStreamingServer[CreateSecretV1Request, CreateSecretV1Response]) error {
+	return status.Errorf(codes.Unimplemented, "method CreateSecretV1 not implemented")
 }
-func (UnimplementedSecretServiceServer) GetSecretV1(context.Context, *GetSecretV1Request) (*GetSecretV1Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSecretV1 not implemented")
+func (UnimplementedSecretServiceServer) GetSecretV1(*GetSecretV1Request, grpc.ServerStreamingServer[GetSecretV1Response]) error {
+	return status.Errorf(codes.Unimplemented, "method GetSecretV1 not implemented")
 }
-func (UnimplementedSecretServiceServer) ListSecretsV1(*ListSecretsV1Request, grpc.ServerStreamingServer[ListSecretsV1Response]) error {
+func (UnimplementedSecretServiceServer) ListSecretsV1(*emptypb.Empty, grpc.ServerStreamingServer[ListSecretsV1Response]) error {
 	return status.Errorf(codes.Unimplemented, "method ListSecretsV1 not implemented")
 }
-func (UnimplementedSecretServiceServer) UpdateSecretV1(context.Context, *UpdateSecretV1Request) (*UpdateSecretV1Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecretV1 not implemented")
+func (UnimplementedSecretServiceServer) UpdateSecretV1(grpc.ClientStreamingServer[UpdateSecretV1Request, UpdateSecretV1Response]) error {
+	return status.Errorf(codes.Unimplemented, "method UpdateSecretV1 not implemented")
 }
 func (UnimplementedSecretServiceServer) DeleteSecretV1(context.Context, *DeleteSecretV1Request) (*DeleteSecretV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSecretV1 not implemented")
@@ -321,70 +337,41 @@ func RegisterSecretServiceServer(s grpc.ServiceRegistrar, srv SecretServiceServe
 	s.RegisterService(&SecretService_ServiceDesc, srv)
 }
 
-func _SecretService_CreateSecretV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateSecretV1Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecretServiceServer).CreateSecretV1(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecretService_CreateSecretV1_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretServiceServer).CreateSecretV1(ctx, req.(*CreateSecretV1Request))
-	}
-	return interceptor(ctx, in, info, handler)
+func _SecretService_CreateSecretV1_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(SecretServiceServer).CreateSecretV1(&grpc.GenericServerStream[CreateSecretV1Request, CreateSecretV1Response]{ServerStream: stream})
 }
 
-func _SecretService_GetSecretV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSecretV1Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecretServiceServer).GetSecretV1(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecretService_GetSecretV1_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretServiceServer).GetSecretV1(ctx, req.(*GetSecretV1Request))
-	}
-	return interceptor(ctx, in, info, handler)
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_CreateSecretV1Server = grpc.ClientStreamingServer[CreateSecretV1Request, CreateSecretV1Response]
 
-func _SecretService_ListSecretsV1_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListSecretsV1Request)
+func _SecretService_GetSecretV1_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetSecretV1Request)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(SecretServiceServer).ListSecretsV1(m, &grpc.GenericServerStream[ListSecretsV1Request, ListSecretsV1Response]{ServerStream: stream})
+	return srv.(SecretServiceServer).GetSecretV1(m, &grpc.GenericServerStream[GetSecretV1Request, GetSecretV1Response]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_GetSecretV1Server = grpc.ServerStreamingServer[GetSecretV1Response]
+
+func _SecretService_ListSecretsV1_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(emptypb.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SecretServiceServer).ListSecretsV1(m, &grpc.GenericServerStream[emptypb.Empty, ListSecretsV1Response]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type SecretService_ListSecretsV1Server = grpc.ServerStreamingServer[ListSecretsV1Response]
 
-func _SecretService_UpdateSecretV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateSecretV1Request)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecretServiceServer).UpdateSecretV1(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecretService_UpdateSecretV1_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecretServiceServer).UpdateSecretV1(ctx, req.(*UpdateSecretV1Request))
-	}
-	return interceptor(ctx, in, info, handler)
+func _SecretService_UpdateSecretV1_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(SecretServiceServer).UpdateSecretV1(&grpc.GenericServerStream[UpdateSecretV1Request, UpdateSecretV1Response]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type SecretService_UpdateSecretV1Server = grpc.ClientStreamingServer[UpdateSecretV1Request, UpdateSecretV1Response]
 
 func _SecretService_DeleteSecretV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteSecretV1Request)
@@ -412,27 +399,30 @@ var SecretService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SecretServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CreateSecretV1",
-			Handler:    _SecretService_CreateSecretV1_Handler,
-		},
-		{
-			MethodName: "GetSecretV1",
-			Handler:    _SecretService_GetSecretV1_Handler,
-		},
-		{
-			MethodName: "UpdateSecretV1",
-			Handler:    _SecretService_UpdateSecretV1_Handler,
-		},
-		{
 			MethodName: "DeleteSecretV1",
 			Handler:    _SecretService_DeleteSecretV1_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
+			StreamName:    "CreateSecretV1",
+			Handler:       _SecretService_CreateSecretV1_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "GetSecretV1",
+			Handler:       _SecretService_GetSecretV1_Handler,
+			ServerStreams: true,
+		},
+		{
 			StreamName:    "ListSecretsV1",
 			Handler:       _SecretService_ListSecretsV1_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "UpdateSecretV1",
+			Handler:       _SecretService_UpdateSecretV1_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "keyper/v1/keyper.proto",

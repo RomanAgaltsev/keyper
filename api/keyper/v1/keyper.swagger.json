@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "keyper/v1/keyper.proto",
+    "title": "keyper/v1/user.proto",
     "version": "version not set"
   },
   "tags": [
@@ -40,7 +40,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "CreateSecretV1Request contains a new secret to store in the service.",
+            "description": "CreateSecretV1Request contains a new secret to store in the service. (streaming inputs)",
             "in": "body",
             "required": true,
             "schema": {
@@ -106,7 +106,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "UpdateSecretV1Request contains a secrets data to update in the service storage.",
+            "description": "UpdateSecretV1Request contains a secrets data to update in the service storage. (streaming inputs)",
             "in": "body",
             "required": true,
             "schema": {
@@ -125,9 +125,18 @@
         "operationId": "SecretService_GetSecretV1",
         "responses": {
           "200": {
-            "description": "A successful response.",
+            "description": "A successful response.(streaming responses)",
             "schema": {
-              "$ref": "#/definitions/v1GetSecretV1Response"
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1GetSecretV1Response"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1GetSecretV1Response"
             }
           },
           "default": {
@@ -519,9 +528,9 @@
           "type": "string",
           "description": "User login (email).\nIdentifies the user across the entire application."
         },
-        "key": {
+        "password": {
           "type": "string",
-          "description": "User encryption key."
+          "description": "User password."
         },
         "id": {
           "type": "string",

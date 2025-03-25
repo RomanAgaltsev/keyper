@@ -22,6 +22,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -84,30 +85,47 @@ func local_request_UserService_LoginUserV1_0(ctx context.Context, marshaler runt
 }
 
 func request_SecretService_CreateSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, client SecretServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateSecretV1Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var metadata runtime.ServerMetadata
+	stream, err := client.CreateSecretV1(ctx)
+	if err != nil {
+		grpclog.Errorf("Failed to start streaming: %v", err)
+		return nil, metadata, err
 	}
-	msg, err := client.CreateSecretV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	dec := marshaler.NewDecoder(req.Body)
+	for {
+		var protoReq CreateSecretV1Request
+		err = dec.Decode(&protoReq)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			grpclog.Errorf("Failed to decode request: %v", err)
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		}
+		if err = stream.Send(&protoReq); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			grpclog.Errorf("Failed to send request: %v", err)
+			return nil, metadata, err
+		}
+	}
+	if err := stream.CloseSend(); err != nil {
+		grpclog.Errorf("Failed to terminate client stream: %v", err)
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		grpclog.Errorf("Failed to get header from client: %v", err)
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	msg, err := stream.CloseAndRecv()
+	metadata.TrailerMD = stream.Trailer()
 	return msg, metadata, err
 }
 
-func local_request_SecretService_CreateSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, server SecretServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq CreateSecretV1Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	msg, err := server.CreateSecretV1(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_SecretService_GetSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, client SecretServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_SecretService_GetSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, client SecretServiceClient, req *http.Request, pathParams map[string]string) (SecretService_GetSecretV1Client, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetSecretV1Request
 		metadata runtime.ServerMetadata
@@ -122,31 +140,21 @@ func request_SecretService_GetSecretV1_0(ctx context.Context, marshaler runtime.
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
-	msg, err := client.GetSecretV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_SecretService_GetSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, server SecretServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq GetSecretV1Request
-		metadata runtime.ServerMetadata
-		err      error
-	)
-	val, ok := pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-	protoReq.Id, err = runtime.String(val)
+	stream, err := client.GetSecretV1(ctx, &protoReq)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+		return nil, metadata, err
 	}
-	msg, err := server.GetSecretV1(ctx, &protoReq)
-	return msg, metadata, err
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
 }
 
 func request_SecretService_ListSecretsV1_0(ctx context.Context, marshaler runtime.Marshaler, client SecretServiceClient, req *http.Request, pathParams map[string]string) (SecretService_ListSecretsV1Client, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListSecretsV1Request
+		protoReq emptypb.Empty
 		metadata runtime.ServerMetadata
 	)
 	io.Copy(io.Discard, req.Body)
@@ -163,26 +171,43 @@ func request_SecretService_ListSecretsV1_0(ctx context.Context, marshaler runtim
 }
 
 func request_SecretService_UpdateSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, client SecretServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UpdateSecretV1Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	var metadata runtime.ServerMetadata
+	stream, err := client.UpdateSecretV1(ctx)
+	if err != nil {
+		grpclog.Errorf("Failed to start streaming: %v", err)
+		return nil, metadata, err
 	}
-	msg, err := client.UpdateSecretV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_SecretService_UpdateSecretV1_0(ctx context.Context, marshaler runtime.Marshaler, server SecretServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var (
-		protoReq UpdateSecretV1Request
-		metadata runtime.ServerMetadata
-	)
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	dec := marshaler.NewDecoder(req.Body)
+	for {
+		var protoReq UpdateSecretV1Request
+		err = dec.Decode(&protoReq)
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			grpclog.Errorf("Failed to decode request: %v", err)
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		}
+		if err = stream.Send(&protoReq); err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			grpclog.Errorf("Failed to send request: %v", err)
+			return nil, metadata, err
+		}
 	}
-	msg, err := server.UpdateSecretV1(ctx, &protoReq)
+	if err := stream.CloseSend(); err != nil {
+		grpclog.Errorf("Failed to terminate client stream: %v", err)
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		grpclog.Errorf("Failed to get header from client: %v", err)
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	msg, err := stream.CloseAndRecv()
+	metadata.TrailerMD = stream.Trailer()
 	return msg, metadata, err
 }
 
@@ -280,44 +305,17 @@ func RegisterUserServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterSecretServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server SecretServiceServer) error {
 	mux.Handle(http.MethodPost, pattern_SecretService_CreateSecretV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/keyper.v1.SecretService/CreateSecretV1", runtime.WithHTTPPathPattern("/v1/secret/create"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_SecretService_CreateSecretV1_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_SecretService_CreateSecretV1_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
+
 	mux.Handle(http.MethodGet, pattern_SecretService_GetSecretV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/keyper.v1.SecretService/GetSecretV1", runtime.WithHTTPPathPattern("/v1/secret/{id}"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_SecretService_GetSecretV1_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_SecretService_GetSecretV1_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
 
 	mux.Handle(http.MethodGet, pattern_SecretService_ListSecretsV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -326,25 +324,12 @@ func RegisterSecretServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 		return
 	})
+
 	mux.Handle(http.MethodPost, pattern_SecretService_UpdateSecretV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/keyper.v1.SecretService/UpdateSecretV1", runtime.WithHTTPPathPattern("/v1/secret/update"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_SecretService_UpdateSecretV1_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		forward_SecretService_UpdateSecretV1_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
 	mux.Handle(http.MethodDelete, pattern_SecretService_DeleteSecretV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -521,7 +506,7 @@ func RegisterSecretServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_SecretService_GetSecretV1_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecretService_GetSecretV1_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodGet, pattern_SecretService_ListSecretsV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -587,7 +572,7 @@ var (
 
 var (
 	forward_SecretService_CreateSecretV1_0 = runtime.ForwardResponseMessage
-	forward_SecretService_GetSecretV1_0    = runtime.ForwardResponseMessage
+	forward_SecretService_GetSecretV1_0    = runtime.ForwardResponseStream
 	forward_SecretService_ListSecretsV1_0  = runtime.ForwardResponseStream
 	forward_SecretService_UpdateSecretV1_0 = runtime.ForwardResponseMessage
 	forward_SecretService_DeleteSecretV1_0 = runtime.ForwardResponseMessage

@@ -3,6 +3,7 @@ syntax = "proto3";
 package keyper.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "keyper/v1/user.proto";
 import "keyper/v1/secret.proto";
 
@@ -31,7 +32,7 @@ service UserService {
 // The secret service definition.
 service SecretService {
     // Creates new secret.
-    rpc CreateSecretV1(CreateSecretV1Request) returns (CreateSecretV1Response) {
+    rpc CreateSecretV1(stream CreateSecretV1Request) returns (CreateSecretV1Response) {
         option (google.api.http) = {
             post: "/v1/secret/create"
             body: "*"
@@ -39,21 +40,21 @@ service SecretService {
     }
 
     // Returns existed secret.
-    rpc GetSecretV1(GetSecretV1Request) returns (GetSecretV1Response) {
+    rpc GetSecretV1(GetSecretV1Request) returns (stream GetSecretV1Response) {
         option (google.api.http) = {
             get: "/v1/secret/{id}"
         };
     }
 
     // Returns a list of existed secrets.
-    rpc ListSecretsV1(ListSecretsV1Request) returns (stream ListSecretsV1Response) {
+    rpc ListSecretsV1(google.protobuf.Empty) returns (stream ListSecretsV1Response) {
         option (google.api.http) = {
             get: "/v1/secret/list"
         };
     }
 
     // Updates existed secret.
-    rpc UpdateSecretV1(UpdateSecretV1Request) returns (UpdateSecretV1Response) {
+    rpc UpdateSecretV1(stream UpdateSecretV1Request) returns (UpdateSecretV1Response) {
         option (google.api.http) = {
             post: "/v1/secret/update"
             body: "*"
