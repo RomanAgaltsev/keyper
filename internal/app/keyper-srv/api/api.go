@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -11,11 +12,19 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
+	"github.com/RomanAgaltsev/keyper/internal/config"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 	"github.com/RomanAgaltsev/keyper/internal/pkg/auth"
 	pb "github.com/RomanAgaltsev/keyper/pkg/keyper/v1"
 	"github.com/RomanAgaltsev/keyper/pkg/transform"
+)
+
+const (
+	msgInternalError      = "Internal error"
+	msgLoginAlreadyTaken  = "Login has already been taken"
+	msgWrongLoginPassword = "Wrong login/password"
+	msgMissingUserID      = "Missing user ID"
 )
 
 var (
@@ -36,39 +45,52 @@ type SecretService interface {
 	Delete(ctx context.Context, secretID uuid.UUID) error
 }
 
-func NewUserAPI(log *slog.Logger, user UserService) pb.UserServiceServer {
+func NewUserAPI(log *slog.Logger, cfg *config.AppConfig, user UserService) pb.UserServiceServer {
 	return &userAPI{
 		log:  log,
+		cfg:  cfg,
 		user: user,
 	}
 }
 
 type userAPI struct {
-	log  *slog.Logger
+	log *slog.Logger
+	cfg *config.AppConfig
+
 	user UserService
 
 	pb.UnimplementedUserServiceServer
 }
 
 func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1Request) (*pb.RegisterUserV1Response, error) {
-	// TODO: observability добавить спан.
+	// TODO: observability
 
 	const op = "userAPI.RegisterUser"
 
 	user := transform.PbToUser(request.Credentials)
 
-	// TODO: add conflict handling
-	// TODO: add errors messages
 	err := a.user.Register(ctx, user)
-	if err != nil {
+	if err != nil && !errors.Is(err, service.ErrLoginTaken) {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
-	// TODO: return token
+	if errors.Is(err, service.ErrLoginTaken) {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.AlreadyExists, msgLoginAlreadyTaken)
+	}
+
+	// Generate JWT token
+	ja := auth.NewAuth(a.cfg.SecretKey)
+	_, tokenString, err := auth.NewJWTToken(ja, user, a.cfg.TokenTTL)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, msgInternalError)
+	}
+
 	response := pb.RegisterUserV1Response{
 		Result: &pb.RegisterLoginResult{
-			Token: "",
+			Token: tokenString,
 		},
 	}
 
@@ -80,32 +102,46 @@ func (a *userAPI) LoginUserV1(ctx context.Context, request *pb.LoginUserV1Reques
 
 	user := transform.PbToUser(request.Credentials)
 
-	// TODO: add errors messages
 	err := a.user.Login(ctx, user)
-	if err != nil {
+	if err != nil && !errors.Is(err, service.ErrLoginWrong) {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
-	// TODO: return token
+	if errors.Is(err, service.ErrLoginWrong) {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.InvalidArgument, msgWrongLoginPassword)
+	}
+
+	// Generate JWT token
+	ja := auth.NewAuth(a.cfg.SecretKey)
+	_, tokenString, err := auth.NewJWTToken(ja, user, a.cfg.TokenTTL)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, msgInternalError)
+	}
+
 	response := pb.LoginUserV1Response{
 		Result: &pb.RegisterLoginResult{
-			Token: "",
+			Token: tokenString,
 		},
 	}
 
 	return &response, nil
 }
 
-func NewSecretAPI(log *slog.Logger, secret SecretService) pb.SecretServiceServer {
+func NewSecretAPI(log *slog.Logger, cfg *config.AppConfig, secret SecretService) pb.SecretServiceServer {
 	return &secretAPI{
 		log:    log,
+		cfg:    cfg,
 		secret: secret,
 	}
 }
 
 type secretAPI struct {
-	log    *slog.Logger
+	log *slog.Logger
+	cfg *config.AppConfig
+
 	secret SecretService
 
 	pb.UnimplementedSecretServiceServer
@@ -117,18 +153,17 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 	userID, err := auth.GetUserUID(ctx)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Unauthenticated, "missing user ID")
+		return nil, status.Error(codes.Unauthenticated, msgMissingUserID)
 	}
 
 	secret := transform.PbToSecret(request.Secret)
 	secret.UserID = userID
 
 	// TODO: add conflict handling
-	// TODO: add errors messages
 	secretID, err := a.secret.Create(ctx, secret)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	secretIDPb := secretID.String()
@@ -150,11 +185,12 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 
 	secret := transform.PbToSecret(request.Secret)
 
-	// TODO: add errors messages
+	// TODO: add secrets ownership check
+
 	err := a.secret.Update(ctx, secret)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	// TODO: transform error
@@ -170,6 +206,7 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 }
 
 func (a *secretAPI) UpdateSecretsDataV1(stream grpc.ClientStreamingServer[pb.UpdateSecretsDataV1Request, pb.UpdateSecretsDataV1Response]) error {
+	// TODO: add secrets ownership check
 	return nil
 }
 
@@ -179,14 +216,14 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 	secretID, err := uuid.Parse(request.Id)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
-	// TODO: add errors messages
+	// TODO: add secrets ownership check
 	secret, err := a.secret.Get(ctx, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	secretPb := transform.SecretToPb(secret)
@@ -204,20 +241,23 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 }
 
 func (a *secretAPI) GetSecretsDataV1(request *pb.GetSecretsDataV1Request, stream grpc.ServerStreamingServer[pb.GetSecretsDataV1Response]) error {
+	// TODO: add secrets ownership check
 	return nil
 }
 
 func (a *secretAPI) ListSecretsV1(ctx context.Context, _ *emptypb.Empty) (*pb.ListSecretsV1Response, error) {
 	const op = "secretAPI.ListSecrets"
 
-	// TODO: transform user from request
-	user := &model.User{}
-
-	// TODO: add errors messages
-	_, err := a.secret.List(ctx, user.ID)
+	userID, err := auth.GetUserUID(ctx)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
+	_, err = a.secret.List(ctx, userID)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	// TODO: transform list of secrets and error
@@ -235,6 +275,7 @@ func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecret
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
+	// TODO: add secrets ownership check
 	// TODO: add errors messages
 	err = a.secret.Delete(ctx, secretID)
 	if err != nil {

@@ -13,8 +13,7 @@ import (
 
 // Config contains application configuration.
 type Config struct {
-	Env      string        `yaml:"env" env-default:"dev"`      // Type of environment to run application - "dev", "prod"
-	TokenTTL time.Duration `yaml:"token_ttl" env-default:"1h"` // JWT-tokens lifetime
+	Env string `yaml:"env" env-default:"dev"` // Type of environment to run application - "dev", "prod"
 
 	App   *AppConfig   `yaml:"app"`   // Application configuration
 	GRPC  *GRPCConfig  `yaml:"grpc"`  // GRPC-server configuration
@@ -24,8 +23,9 @@ type Config struct {
 
 // AppConfig - application configuration.
 type AppConfig struct {
-	DatabaseURI string `yaml:"database_uri"` // Address for database connection
-	SecretKey   string `yaml:"secret_key"`   // Authentication secret key
+	DatabaseURI string        `yaml:"database_uri"`               // Address for database connection
+	SecretKey   string        `yaml:"secret_key"`                 // Authentication secret key
+	TokenTTL    time.Duration `yaml:"token_ttl" env-default:"1h"` // JWT-tokens lifetime
 }
 
 // GRPCConfig - GRPC-server configuration.

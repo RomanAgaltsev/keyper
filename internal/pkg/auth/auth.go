@@ -42,7 +42,7 @@ func NewAuth(secretKey string) *jwtauth.JWTAuth {
 }
 
 // NewJWTToken creates new JWT token.
-func NewJWTToken(ja *jwtauth.JWTAuth, user model.User, duration time.Duration) (token jwt.Token, tokenString string, err error) {
+func NewJWTToken(ja *jwtauth.JWTAuth, user *model.User, duration time.Duration) (token jwt.Token, tokenString string, err error) {
 	return ja.Encode(map[string]interface{}{
 		string(UserIDClaimName):    user.ID,
 		string(UserLoginClaimName): user.Login,

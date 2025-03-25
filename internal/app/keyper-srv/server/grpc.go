@@ -49,8 +49,8 @@ func NewGRPCServer(log *slog.Logger, cfg *config.Config, userService api.UserSer
 		//		),
 	)
 
-	userAPI := api.NewUserAPI(log, userService)
-	secretAPI := api.NewSecretAPI(log, secretService)
+	userAPI := api.NewUserAPI(log, cfg.App, userService)
+	secretAPI := api.NewSecretAPI(log, cfg.App, secretService)
 
 	api.Register(server, userAPI, secretAPI)
 
