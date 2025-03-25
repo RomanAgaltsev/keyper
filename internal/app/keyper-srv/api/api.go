@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/service"
 	"github.com/RomanAgaltsev/keyper/internal/logger/sl"
@@ -144,6 +145,34 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 	return &response, nil
 }
 
+func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecretV1Request) (*pb.UpdateSecretV1Response, error) {
+	const op = "secretAPI.UpdateSecret"
+
+	secret := transform.PbToSecret(request.Secret)
+
+	// TODO: add errors messages
+	err := a.secret.Update(ctx, secret)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Internal, "please look at logs")
+	}
+
+	// TODO: transform error
+	errorPb := ""
+
+	response := pb.UpdateSecretV1Response{
+		Result: &pb.UpdateSecretResult{
+			Error: &errorPb,
+		},
+	}
+
+	return &response, nil
+}
+
+func (a *secretAPI) UpdateSecretsDataV1(stream grpc.ClientStreamingServer[pb.UpdateSecretsDataV1Request, pb.UpdateSecretsDataV1Response]) error {
+	return nil
+}
+
 func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Request) (*pb.GetSecretV1Response, error) {
 	const op = "secretAPI.GetSecret"
 
@@ -174,47 +203,27 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 	return &response, nil
 }
 
-func (a *secretAPI) ListSecretsV1(request *pb.ListSecretsV1Request, stream grpc.ServerStreamingServer[pb.ListSecretsV1Response]) error {
+func (a *secretAPI) GetSecretsDataV1(request *pb.GetSecretsDataV1Request, stream grpc.ServerStreamingServer[pb.GetSecretsDataV1Response]) error {
+	return nil
+}
+
+func (a *secretAPI) ListSecretsV1(ctx context.Context, _ *emptypb.Empty) (*pb.ListSecretsV1Response, error) {
 	const op = "secretAPI.ListSecrets"
 
 	// TODO: transform user from request
 	user := &model.User{}
 
 	// TODO: add errors messages
-	_, err := a.secret.List(stream.Context(), user.ID)
-	if err != nil {
-		a.log.Error(op, sl.Err(err))
-		return status.Error(codes.Internal, "please look at logs")
-	}
-
-	// TODO: transform list of secrets and error
-	// TODO: return list of secrets and error
-
-	return nil
-}
-
-func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecretV1Request) (*pb.UpdateSecretV1Response, error) {
-	const op = "secretAPI.UpdateSecret"
-
-	secret := transform.PbToSecret(request.Secret)
-
-	// TODO: add errors messages
-	err := a.secret.Update(ctx, secret)
+	_, err := a.secret.List(ctx, user.ID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, "please look at logs")
 	}
 
-	// TODO: transform error
-	errorPb := ""
+	// TODO: transform list of secrets and error
+	// TODO: return list of secrets and error
 
-	response := pb.UpdateSecretV1Response{
-		Result: &pb.UpdateSecretV1Response_UpdateSecretResult{
-			Error: &errorPb,
-		},
-	}
-
-	return &response, nil
+	return nil, nil
 }
 
 func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecretV1Request) (*pb.DeleteSecretV1Response, error) {
