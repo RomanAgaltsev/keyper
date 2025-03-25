@@ -16,6 +16,7 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/database"
 	"github.com/RomanAgaltsev/keyper/internal/database/queries"
 	"github.com/RomanAgaltsev/keyper/internal/model"
+	"github.com/RomanAgaltsev/keyper/pkg/transform"
 )
 
 const DefaultRetryMaxElapsedTime = 5 * time.Second
@@ -49,13 +50,12 @@ func (r *UserRepository) Create(
 	// PG error to catch the conflict
 	var pgErr *pgconn.PgError
 
+	createUserParams := transform.UserToCreateUserParams(user)
+
 	// Create a function to wrap user creation with exponential backoff
 	f := func() (error, error) {
 		// Create user
-		_, err := r.q.CreateUser(ctx, queries.CreateUserParams{
-			Login:    user.Login,
-			Password: user.Password,
-		})
+		_, err := r.q.CreateUser(ctx, createUserParams)
 
 		// Check if there is a conflict
 		if errors.As(err, &pgErr) && pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
@@ -92,13 +92,10 @@ func (r *UserRepository) Get(
 	*model.User,
 	error,
 ) {
-	// Create a function to wrap user getting with exponential backoff
-	f := func() (queries.GetUserRow, error) {
-		return r.q.GetUser(ctx, userID)
-	}
-
 	// Get user from DB
-	userRow, err := backoff.Retry(ctx, f, ro...)
+	userDB, err := backoff.Retry(ctx, func() (queries.User, error) {
+		return r.q.GetUser(ctx, userID)
+	}, ro...)
 
 	// Check if something has gone wrong
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -110,12 +107,10 @@ func (r *UserRepository) Get(
 		return nil, nil
 	}
 
+	user := transform.DBToUser(userDB)
+
 	// Return user
-	return &model.User{
-		ID:       userID,
-		Login:    userRow.Login,
-		Password: userRow.Password,
-	}, nil
+	return user, nil
 }
 
 func NewSecretRepository(dbpool *pgxpool.Pool) *SecretRepository {
@@ -138,18 +133,12 @@ func (r *SecretRepository) Create(
 	uuid.UUID,
 	error,
 ) {
-	f := func() (uuid.UUID, error) {
-		return r.q.CreateSecret(ctx, queries.CreateSecretParams{
-			Name:     secret.Name,
-			Type:     queries.SecretType(secret.Type),
-			Metadata: secret.Metadata,
-			Data:     secret.Data,
-			Comment:  &secret.Comment,
-			UserID:   secret.UserID,
-		})
-	}
+	createSecretParams := transform.SecretToCreateSecretParams(secret)
 
-	secretID, err := backoff.Retry(ctx, f, ro...)
+	secretID, err := backoff.Retry(ctx, func() (uuid.UUID, error) {
+		return r.q.CreateSecret(ctx, createSecretParams)
+	}, ro...)
+
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -165,26 +154,17 @@ func (r *SecretRepository) Get(
 	*model.Secret,
 	error,
 ) {
-	f := func() (queries.GetSecretRow, error) {
+	secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
 		return r.q.GetSecret(ctx, secretID)
-	}
+	}, ro...)
 
-	secretRow, err := backoff.Retry(ctx, f, ro...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.Secret{
-		ID:        secretID,
-		Name:      secretRow.Name,
-		Type:      model.SecretType(secretRow.Type),
-		Metadata:  secretRow.Metadata,
-		Data:      secretRow.Data,
-		Comment:   *secretRow.Comment,
-		CreatedAt: secretRow.CreatedAt,
-		UpdatedAt: secretRow.UpdatedAt,
-		UserID:    secretRow.UserID,
-	}, nil
+	secret := transform.DBToSecret(secretDB)
+
+	return secret, nil
 }
 
 func (r *SecretRepository) List(
@@ -195,27 +175,15 @@ func (r *SecretRepository) List(
 	model.Secrets,
 	error,
 ) {
-	f := func() ([]queries.ListSecretsRow, error) {
+	listSecretsRow, err := backoff.Retry(ctx, func() ([]queries.ListSecretsRow, error) {
 		return r.q.ListSecrets(ctx, userID)
-	}
+	}, ro...)
 
-	listSecretsRow, err := backoff.Retry(ctx, f, ro...)
 	if err != nil {
 		return nil, err
 	}
 
-	secrets := make([]*model.Secret, 0, len(listSecretsRow))
-	for _, secret := range listSecretsRow {
-		secrets = append(secrets, &model.Secret{
-			ID:        secret.ID,
-			Name:      secret.Name,
-			Type:      model.SecretType(secret.Type),
-			Metadata:  secret.Metadata,
-			Comment:   *secret.Comment,
-			CreatedAt: secret.CreatedAt,
-			UpdatedAt: secret.UpdatedAt,
-		})
-	}
+	secrets := transform.ListSecretsRowToSecrets(listSecretsRow)
 
 	return secrets, nil
 }
@@ -230,27 +198,15 @@ func (r *SecretRepository) Update(
 		// Create query with transaction
 		qtx := r.q.WithTx(tx)
 
-		fGet := func() (queries.GetSecretForUpdateRow, error) {
+		secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
 			return qtx.GetSecretForUpdate(ctx, secret.ID)
-		}
+		}, ro...)
 
-		secretRow, err := backoff.Retry(ctx, fGet, ro...)
 		if err != nil {
 			return err
 		}
 
-		// TODO: copygen - Вынести из репозитория
-		secretTo := &model.Secret{
-			ID:        secret.ID,
-			Name:      secretRow.Name,
-			Type:      model.SecretType(secretRow.Type),
-			Metadata:  secretRow.Metadata,
-			Data:      secretRow.Data,
-			Comment:   *secretRow.Comment,
-			CreatedAt: secretRow.CreatedAt,
-			UpdatedAt: secretRow.UpdatedAt,
-			UserID:    secretRow.UserID,
-		}
+		secretTo := transform.DBToSecret(secretDB)
 
 		ok, err := updateFn(secretTo, secret)
 		if err != nil {
@@ -261,25 +217,16 @@ func (r *SecretRepository) Update(
 			return nil
 		}
 
-		fUpdate := func() (bool, error) {
-			err := qtx.UpdateSecret(ctx, queries.UpdateSecretParams{
-				ID:        secret.ID,
-				Name:      secret.Name,
-				Type:      queries.SecretType(secret.Type),
-				Metadata:  secret.Metadata,
-				Data:      secret.Data,
-				Comment:   &secret.Comment,
-				CreatedAt: secret.CreatedAt,
-				UpdatedAt: secret.UpdatedAt,
-				UserID:    secret.UserID,
-			})
+		updateSecretParams := transform.SecretToUpdateSecretParams(secretTo)
+
+		_, err = backoff.Retry(ctx, func() (bool, error) {
+			err := qtx.UpdateSecret(ctx, updateSecretParams)
 			if err != nil {
 				return false, err
 			}
 			return true, nil
-		}
+		}, ro...)
 
-		_, err = backoff.Retry(ctx, fUpdate, ro...)
 		if err != nil {
 			return err
 		}
@@ -293,15 +240,14 @@ func (r *SecretRepository) Delete(
 	ro []backoff.RetryOption,
 	secretID uuid.UUID,
 ) error {
-	f := func() (bool, error) {
+	_, err := backoff.Retry(ctx, func() (bool, error) {
 		err := r.q.DeleteSecret(ctx, secretID)
 		if err != nil {
 			return false, err
 		}
 		return true, nil
-	}
+	}, ro...)
 
-	_, err := backoff.Retry(ctx, f, ro...)
 	if err != nil {
 		return err
 	}

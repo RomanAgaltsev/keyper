@@ -7,9 +7,10 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID
-	Login    string
-	Password string
+	ID        uuid.UUID
+	Login     string
+	Password  string
+	CreatedAt time.Time
 }
 
 type SecretType string

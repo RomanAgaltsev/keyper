@@ -69,26 +69,16 @@ func (q *Queries) DeleteSecret(ctx context.Context, id uuid.UUID) error {
 }
 
 const getSecret = `-- name: GetSecret :one
-SELECT name, type, metadata, data, comment, created_at, updated_at, user_id
+SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
 WHERE id = $1 LIMIT 1
 `
 
-type GetSecretRow struct {
-	Name      string
-	Type      SecretType
-	Metadata  []byte
-	Data      []byte
-	Comment   *string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	UserID    uuid.UUID
-}
-
-func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (GetSecretRow, error) {
+func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (Secret, error) {
 	row := q.db.QueryRow(ctx, getSecret, id)
-	var i GetSecretRow
+	var i Secret
 	err := row.Scan(
+		&i.ID,
 		&i.Name,
 		&i.Type,
 		&i.Metadata,
@@ -102,28 +92,18 @@ func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (GetSecretRow, er
 }
 
 const getSecretForUpdate = `-- name: GetSecretForUpdate :one
-SELECT name, type, metadata, data, comment, created_at, updated_at, user_id
+SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
 WHERE id = $1
 LIMIT 1
 FOR UPDATE
 `
 
-type GetSecretForUpdateRow struct {
-	Name      string
-	Type      SecretType
-	Metadata  []byte
-	Data      []byte
-	Comment   *string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	UserID    uuid.UUID
-}
-
-func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (GetSecretForUpdateRow, error) {
+func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (Secret, error) {
 	row := q.db.QueryRow(ctx, getSecretForUpdate, id)
-	var i GetSecretForUpdateRow
+	var i Secret
 	err := row.Scan(
+		&i.ID,
 		&i.Name,
 		&i.Type,
 		&i.Metadata,
@@ -137,21 +117,20 @@ func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (GetSecr
 }
 
 const getUser = `-- name: GetUser :one
-SELECT login, password, created_at
+SELECT id, login, password, created_at
 FROM users
 WHERE id = $1 LIMIT 1
 `
 
-type GetUserRow struct {
-	Login     string
-	Password  string
-	CreatedAt time.Time
-}
-
-func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (GetUserRow, error) {
+func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	row := q.db.QueryRow(ctx, getUser, id)
-	var i GetUserRow
-	err := row.Scan(&i.Login, &i.Password, &i.CreatedAt)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Password,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 

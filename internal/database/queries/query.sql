@@ -3,7 +3,7 @@ INSERT INTO users (login, password)
 VALUES ($1, $2) RETURNING id;
 
 -- name: GetUser :one
-SELECT login, password, created_at
+SELECT id, login, password, created_at
 FROM users
 WHERE id = $1 LIMIT 1;
 
@@ -12,12 +12,12 @@ INSERT INTO secrets (name, type, metadata, data, comment, user_id)
 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
 
 -- name: GetSecret :one
-SELECT name, type, metadata, data, comment, created_at, updated_at, user_id
+SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
 WHERE id = $1 LIMIT 1;
 
 -- name: GetSecretForUpdate :one
-SELECT name, type, metadata, data, comment, created_at, updated_at, user_id
+SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
 WHERE id = $1
 LIMIT 1
