@@ -60,22 +60,33 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UU
 const deleteSecret = `-- name: DeleteSecret :exec
 DELETE
 FROM secrets
-WHERE id = $1
+WHERE id = $1 AND user_id = $2
 `
 
-func (q *Queries) DeleteSecret(ctx context.Context, id uuid.UUID) error {
-	_, err := q.db.Exec(ctx, deleteSecret, id)
+type DeleteSecretParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) DeleteSecret(ctx context.Context, arg DeleteSecretParams) error {
+	_, err := q.db.Exec(ctx, deleteSecret, arg.ID, arg.UserID)
 	return err
 }
 
 const getSecret = `-- name: GetSecret :one
 SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
-WHERE id = $1 LIMIT 1
+WHERE id = $1 AND user_id = $2
+LIMIT 1
 `
 
-func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (Secret, error) {
-	row := q.db.QueryRow(ctx, getSecret, id)
+type GetSecretParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetSecret(ctx context.Context, arg GetSecretParams) (Secret, error) {
+	row := q.db.QueryRow(ctx, getSecret, arg.ID, arg.UserID)
 	var i Secret
 	err := row.Scan(
 		&i.ID,
@@ -94,13 +105,18 @@ func (q *Queries) GetSecret(ctx context.Context, id uuid.UUID) (Secret, error) {
 const getSecretForUpdate = `-- name: GetSecretForUpdate :one
 SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
-WHERE id = $1
+WHERE id = $1 AND user_id = $2
 LIMIT 1
 FOR UPDATE
 `
 
-func (q *Queries) GetSecretForUpdate(ctx context.Context, id uuid.UUID) (Secret, error) {
-	row := q.db.QueryRow(ctx, getSecretForUpdate, id)
+type GetSecretForUpdateParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetSecretForUpdate(ctx context.Context, arg GetSecretForUpdateParams) (Secret, error) {
+	row := q.db.QueryRow(ctx, getSecretForUpdate, arg.ID, arg.UserID)
 	var i Secret
 	err := row.Scan(
 		&i.ID,

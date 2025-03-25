@@ -38,6 +38,27 @@ func DBToUser(src queries.User) *model.User {
 	}
 }
 
+func IDToGetSecretParams(userID, secretID uuid.UUID) queries.GetSecretParams {
+	return queries.GetSecretParams{
+		ID:     secretID,
+		UserID: userID,
+	}
+}
+
+func IDToGetSecretForUpdate(userID, secretID uuid.UUID) queries.GetSecretForUpdateParams {
+	return queries.GetSecretForUpdateParams{
+		ID:     secretID,
+		UserID: userID,
+	}
+}
+
+func IDToDeleteSecretParams(userID, secretID uuid.UUID) queries.DeleteSecretParams {
+	return queries.DeleteSecretParams{
+		ID:     secretID,
+		UserID: userID,
+	}
+}
+
 func PbToSecret(src *pb.Secret) *model.Secret {
 	if src == nil {
 		return nil

@@ -39,10 +39,10 @@ type UserService interface {
 
 type SecretService interface {
 	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
-	Get(ctx context.Context, secretID uuid.UUID) (*model.Secret, error)
+	Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
+	Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
 	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)
-	Update(ctx context.Context, secret *model.Secret) error
-	Delete(ctx context.Context, secretID uuid.UUID) error
+	Delete(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) error
 }
 
 func NewUserAPI(log *slog.Logger, cfg *config.AppConfig, user UserService) pb.UserServiceServer {
@@ -183,11 +183,15 @@ func (a *secretAPI) CreateSecretV1(ctx context.Context, request *pb.CreateSecret
 func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecretV1Request) (*pb.UpdateSecretV1Response, error) {
 	const op = "secretAPI.UpdateSecret"
 
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
 	secret := transform.PbToSecret(request.Secret)
 
-	// TODO: add secrets ownership check
-
-	err := a.secret.Update(ctx, secret)
+	err = a.secret.Update(ctx, userID, secret)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, msgInternalError)
@@ -213,14 +217,19 @@ func (a *secretAPI) UpdateSecretsDataV1(stream grpc.ClientStreamingServer[pb.Upd
 func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Request) (*pb.GetSecretV1Response, error) {
 	const op = "secretAPI.GetSecret"
 
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
 	secretID, err := uuid.Parse(request.Id)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
-	// TODO: add secrets ownership check
-	secret, err := a.secret.Get(ctx, secretID)
+	secret, err := a.secret.Get(ctx, userID, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
 		return nil, status.Error(codes.Internal, msgInternalError)
@@ -269,18 +278,24 @@ func (a *secretAPI) ListSecretsV1(ctx context.Context, _ *emptypb.Empty) (*pb.Li
 func (a *secretAPI) DeleteSecretV1(ctx context.Context, request *pb.DeleteSecretV1Request) (*pb.DeleteSecretV1Response, error) {
 	const op = "secretAPI.DeleteSecret"
 
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return nil, status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
 	secretID, err := uuid.Parse(request.Id)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	// TODO: add secrets ownership check
 	// TODO: add errors messages
-	err = a.secret.Delete(ctx, secretID)
+	err = a.secret.Delete(ctx, userID, secretID)
 	if err != nil {
 		a.log.Error(op, sl.Err(err))
-		return nil, status.Error(codes.Internal, "please look at logs")
+		return nil, status.Error(codes.Internal, msgInternalError)
 	}
 
 	// TODO: transform error

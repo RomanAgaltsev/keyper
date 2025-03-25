@@ -145,49 +145,10 @@ func (r *SecretRepository) Create(
 	return secretID, nil
 }
 
-func (r *SecretRepository) Get(
-	ctx context.Context,
-	ro []backoff.RetryOption,
-	secretID uuid.UUID,
-) (
-	*model.Secret,
-	error,
-) {
-	secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
-		return r.q.GetSecret(ctx, secretID)
-	}, ro...)
-	if err != nil {
-		return nil, err
-	}
-
-	secret := transform.DBToSecret(secretDB)
-
-	return secret, nil
-}
-
-func (r *SecretRepository) List(
-	ctx context.Context,
-	ro []backoff.RetryOption,
-	userID uuid.UUID,
-) (
-	model.Secrets,
-	error,
-) {
-	listSecretsRow, err := backoff.Retry(ctx, func() ([]queries.ListSecretsRow, error) {
-		return r.q.ListSecrets(ctx, userID)
-	}, ro...)
-	if err != nil {
-		return nil, err
-	}
-
-	secrets := transform.ListSecretsRowToSecrets(listSecretsRow)
-
-	return secrets, nil
-}
-
 func (r *SecretRepository) Update(
 	ctx context.Context,
 	ro []backoff.RetryOption,
+	userID uuid.UUID,
 	secret *model.Secret,
 	updateFn func(secretTo, secretFrom *model.Secret) (bool, error),
 ) error {
@@ -195,8 +156,10 @@ func (r *SecretRepository) Update(
 		// Create query with transaction
 		qtx := r.q.WithTx(tx)
 
+		getSecretForUpdateParams := transform.IDToGetSecretForUpdate(userID, secret.ID)
+
 		secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
-			return qtx.GetSecretForUpdate(ctx, secret.ID)
+			return qtx.GetSecretForUpdate(ctx, getSecretForUpdateParams)
 		}, ro...)
 		if err != nil {
 			return err
@@ -230,13 +193,60 @@ func (r *SecretRepository) Update(
 	})
 }
 
+func (r *SecretRepository) Get(
+	ctx context.Context,
+	ro []backoff.RetryOption,
+	userID uuid.UUID,
+	secretID uuid.UUID,
+) (
+	*model.Secret,
+	error,
+) {
+	getSecretParams := transform.IDToGetSecretParams(userID, secretID)
+
+	secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
+		return r.q.GetSecret(ctx, getSecretParams)
+	}, ro...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	secret := transform.DBToSecret(secretDB)
+
+	return secret, nil
+}
+
+func (r *SecretRepository) List(
+	ctx context.Context,
+	ro []backoff.RetryOption,
+	userID uuid.UUID,
+) (
+	model.Secrets,
+	error,
+) {
+	listSecretsRow, err := backoff.Retry(ctx, func() ([]queries.ListSecretsRow, error) {
+		return r.q.ListSecrets(ctx, userID)
+	}, ro...)
+	if err != nil {
+		return nil, err
+	}
+
+	secrets := transform.ListSecretsRowToSecrets(listSecretsRow)
+
+	return secrets, nil
+}
+
 func (r *SecretRepository) Delete(
 	ctx context.Context,
 	ro []backoff.RetryOption,
+	userID uuid.UUID,
 	secretID uuid.UUID,
 ) error {
+	deleteSecretParams := transform.IDToDeleteSecretParams(userID, secretID)
+
 	_, err := backoff.Retry(ctx, func() (bool, error) {
-		err := r.q.DeleteSecret(ctx, secretID)
+		err := r.q.DeleteSecret(ctx, deleteSecretParams)
 		if err != nil {
 			return false, err
 		}

@@ -14,12 +14,13 @@ VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
 -- name: GetSecret :one
 SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
-WHERE id = $1 LIMIT 1;
+WHERE id = $1 AND user_id = $2
+LIMIT 1;
 
 -- name: GetSecretForUpdate :one
 SELECT id, name, type, metadata, data, comment, created_at, updated_at, user_id
 FROM secrets
-WHERE id = $1
+WHERE id = $1 AND user_id = $2
 LIMIT 1
 FOR UPDATE;
 
@@ -37,4 +38,4 @@ WHERE id = $1;
 -- name: DeleteSecret :exec
 DELETE
 FROM secrets
-WHERE id = $1;
+WHERE id = $1 AND user_id = $2;

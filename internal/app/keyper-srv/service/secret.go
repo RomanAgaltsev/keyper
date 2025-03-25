@@ -15,10 +15,10 @@ var _ SecretRepository = (*repository.SecretRepository)(nil)
 
 type SecretRepository interface {
 	Create(ctx context.Context, ro []backoff.RetryOption, secret *model.Secret) (uuid.UUID, error)
-	Get(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) (*model.Secret, error)
+	Update(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secret *model.Secret, updateFn func(dst, src *model.Secret) (bool, error)) error
+	Get(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
 	List(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (model.Secrets, error)
-	Update(ctx context.Context, ro []backoff.RetryOption, secret *model.Secret, updateFn func(dst, src *model.Secret) (bool, error)) error
-	Delete(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) error
+	Delete(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) error
 }
 
 func NewSecretService(log *slog.Logger, repository *repository.SecretRepository) *SecretService {
@@ -43,16 +43,8 @@ func (s *SecretService) Create(ctx context.Context, secret *model.Secret) (uuid.
 	return secretID, nil
 }
 
-func (s *SecretService) Get(ctx context.Context, secretID uuid.UUID) (*model.Secret, error) {
-	return s.repository.Get(ctx, repository.DefaultRetryOpts, secretID)
-}
-
-func (s *SecretService) List(ctx context.Context, userID uuid.UUID) (model.Secrets, error) {
-	return s.repository.List(ctx, repository.DefaultRetryOpts, userID)
-}
-
-func (s *SecretService) Update(ctx context.Context, secret *model.Secret) error {
-	return s.repository.Update(ctx, repository.DefaultRetryOpts, secret, func(secretTo, secretFrom *model.Secret) (bool, error) {
+func (s *SecretService) Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error {
+	return s.repository.Update(ctx, repository.DefaultRetryOpts, userID, secret, func(secretTo, secretFrom *model.Secret) (bool, error) {
 		err := secretTo.UpdateWith(secretFrom)
 		if err != nil {
 			return false, nil
@@ -61,6 +53,14 @@ func (s *SecretService) Update(ctx context.Context, secret *model.Secret) error 
 	})
 }
 
-func (s *SecretService) Delete(ctx context.Context, secretID uuid.UUID) error {
-	return s.repository.Delete(ctx, repository.DefaultRetryOpts, secretID)
+func (s *SecretService) Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error) {
+	return s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
+}
+
+func (s *SecretService) List(ctx context.Context, userID uuid.UUID) (model.Secrets, error) {
+	return s.repository.List(ctx, repository.DefaultRetryOpts, userID)
+}
+
+func (s *SecretService) Delete(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) error {
+	return s.repository.Delete(ctx, repository.DefaultRetryOpts, userID, secretID)
 }
