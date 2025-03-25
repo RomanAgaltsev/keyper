@@ -138,7 +138,6 @@ func (r *SecretRepository) Create(
 	secretID, err := backoff.Retry(ctx, func() (uuid.UUID, error) {
 		return r.q.CreateSecret(ctx, createSecretParams)
 	}, ro...)
-
 	if err != nil {
 		return uuid.Nil, err
 	}
@@ -157,7 +156,6 @@ func (r *SecretRepository) Get(
 	secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
 		return r.q.GetSecret(ctx, secretID)
 	}, ro...)
-
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +176,6 @@ func (r *SecretRepository) List(
 	listSecretsRow, err := backoff.Retry(ctx, func() ([]queries.ListSecretsRow, error) {
 		return r.q.ListSecrets(ctx, userID)
 	}, ro...)
-
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +198,6 @@ func (r *SecretRepository) Update(
 		secretDB, err := backoff.Retry(ctx, func() (queries.Secret, error) {
 			return qtx.GetSecretForUpdate(ctx, secret.ID)
 		}, ro...)
-
 		if err != nil {
 			return err
 		}
@@ -226,7 +222,6 @@ func (r *SecretRepository) Update(
 			}
 			return true, nil
 		}, ro...)
-
 		if err != nil {
 			return err
 		}
@@ -247,7 +242,6 @@ func (r *SecretRepository) Delete(
 		}
 		return true, nil
 	}, ro...)
-
 	if err != nil {
 		return err
 	}

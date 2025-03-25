@@ -4,14 +4,14 @@ package auth
 import (
 	"context"
 	"errors"
-	"github.com/google/uuid"
 	"time"
 
-	"github.com/RomanAgaltsev/keyper/internal/model"
-
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/google/uuid"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
 type (
