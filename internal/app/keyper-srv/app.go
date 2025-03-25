@@ -121,7 +121,6 @@ func (a *App) Run() error {
 	if err != nil {
 		return fmt.Errorf("connection pool: %w", err)
 	}
-	defer dbpool.Close()
 
 	userRepository := repository.NewUserRepository(dbpool)
 	userService := service.NewUserService(a.log, userRepository)
@@ -156,47 +155,28 @@ func (a *App) Run() error {
 	*/
 
 	g.Go(func() error {
-		defer a.log.Info("pprof server has been shut down")
-
 		<-ctx.Done()
+
+		dbpool.Close()
+		a.log.Info("connection pool has been closed")
 
 		shutdownTimeoutCtx, cancelShutdownTimeoutCtx := context.WithTimeout(context.Background(), timeoutServerShutdown)
 		defer cancelShutdownTimeoutCtx()
 
 		if err := pprofServer.Shutdown(shutdownTimeoutCtx); err != nil {
 			a.log.Error("pprof server shut down", sl.Err(err))
+		} else {
+			a.log.Info("pprof server has been shut down")
 		}
-
-		return nil
-	})
-
-	g.Go(func() error {
-		defer a.log.Info("gateway server has been shut down")
-
-		<-ctx.Done()
-
-		shutdownTimeoutCtx, cancelShutdownTimeoutCtx := context.WithTimeout(context.Background(), timeoutServerShutdown)
-		defer cancelShutdownTimeoutCtx()
 
 		if err := gatewayServer.Shutdown(shutdownTimeoutCtx); err != nil {
 			a.log.Error("gateway server shut down", sl.Err(err))
+		} else {
+			a.log.Info("gateway server has been shut down")
 		}
 
-		return nil
-	})
-
-	g.Go(func() error {
-		defer a.log.Info("GRPC server has been shut down")
-
-		<-ctx.Done()
-
-		const op = "app.StopGRPCServer"
-
-		a.log.With(slog.String("op", op)).
-			Info("stopping gRPC server", slog.Int("port", a.cfg.GRPC.Port))
-
-		// Используем встроенный в gRPCServer механизм graceful shutdown
 		gRPCServer.GracefulStop()
+		a.log.Info("GRPC server has been shut down")
 
 		return nil
 	})
