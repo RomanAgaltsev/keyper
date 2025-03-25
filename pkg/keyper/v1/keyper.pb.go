@@ -29,49 +29,59 @@ const file_keyper_v1_keyper_proto_rawDesc = "" +
 	"\x16keyper/v1/keyper.proto\x12\tkeyper.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x14keyper/v1/user.proto\x1a\x16keyper/v1/secret.proto2\xeb\x01\n" +
 	"\vUserService\x12s\n" +
 	"\x0eRegisterUserV1\x12 .keyper.v1.RegisterUserV1Request\x1a!.keyper.v1.RegisterUserV1Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/user/register\x12g\n" +
-	"\vLoginUserV1\x12\x1d.keyper.v1.LoginUserV1Request\x1a\x1e.keyper.v1.LoginUserV1Response\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/user/login2\xbc\x04\n" +
-	"\rSecretService\x12u\n" +
-	"\x0eCreateSecretV1\x12 .keyper.v1.CreateSecretV1Request\x1a!.keyper.v1.CreateSecretV1Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/secret/create(\x01\x12g\n" +
-	"\vGetSecretV1\x12\x1d.keyper.v1.GetSecretV1Request\x1a\x1e.keyper.v1.GetSecretV1Response\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/secret/{id}0\x01\x12d\n" +
-	"\rListSecretsV1\x12\x16.google.protobuf.Empty\x1a .keyper.v1.ListSecretsV1Response\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/secret/list0\x01\x12u\n" +
-	"\x0eUpdateSecretV1\x12 .keyper.v1.UpdateSecretV1Request\x1a!.keyper.v1.UpdateSecretV1Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/secret/update(\x01\x12n\n" +
+	"\vLoginUserV1\x12\x1d.keyper.v1.LoginUserV1Request\x1a\x1e.keyper.v1.LoginUserV1Response\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/user/login2\xbb\x06\n" +
+	"\rSecretService\x12s\n" +
+	"\x0eCreateSecretV1\x12 .keyper.v1.CreateSecretV1Request\x1a!.keyper.v1.CreateSecretV1Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/secret/create\x12s\n" +
+	"\x0eUpdateSecretV1\x12 .keyper.v1.UpdateSecretV1Request\x1a!.keyper.v1.UpdateSecretV1Response\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/secret/update\x12\x88\x01\n" +
+	"\x13UpdateSecretsDataV1\x12%.keyper.v1.UpdateSecretsDataV1Request\x1a&.keyper.v1.UpdateSecretsDataV1Response\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/v1/secret/updatedata(\x01\x12e\n" +
+	"\vGetSecretV1\x12\x1d.keyper.v1.GetSecretV1Request\x1a\x1e.keyper.v1.GetSecretV1Response\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/secret/{id}\x12z\n" +
+	"\x10GetSecretsDataV1\x12\".keyper.v1.GetSecretsDataV1Request\x1a#.keyper.v1.GetSecretsDataV1Response\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/secretdata/{id}0\x01\x12b\n" +
+	"\rListSecretsV1\x12\x16.google.protobuf.Empty\x1a .keyper.v1.ListSecretsV1Response\"\x17\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/secret/list\x12n\n" +
 	"\x0eDeleteSecretV1\x12 .keyper.v1.DeleteSecretV1Request\x1a!.keyper.v1.DeleteSecretV1Response\"\x17\x82\xd3\xe4\x93\x02\x11*\x0f/v1/secret/{id}B\x97\x01\n" +
 	"\rcom.keyper.v1B\vKeyperProtoP\x01Z4github.com/RomanAgaltsev/keyper/pkg/keyper/v1;keyper\xa2\x02\x03KXX\xaa\x02\tKeyper.V1\xca\x02\tKeyper\\V1\xe2\x02\x15Keyper\\V1\\GPBMetadata\xea\x02\n" +
 	"Keyper::V1b\x06proto3"
 
 var file_keyper_v1_keyper_proto_goTypes = []any{
-	(*RegisterUserV1Request)(nil),  // 0: keyper.v1.RegisterUserV1Request
-	(*LoginUserV1Request)(nil),     // 1: keyper.v1.LoginUserV1Request
-	(*CreateSecretV1Request)(nil),  // 2: keyper.v1.CreateSecretV1Request
-	(*GetSecretV1Request)(nil),     // 3: keyper.v1.GetSecretV1Request
-	(*emptypb.Empty)(nil),          // 4: google.protobuf.Empty
-	(*UpdateSecretV1Request)(nil),  // 5: keyper.v1.UpdateSecretV1Request
-	(*DeleteSecretV1Request)(nil),  // 6: keyper.v1.DeleteSecretV1Request
-	(*RegisterUserV1Response)(nil), // 7: keyper.v1.RegisterUserV1Response
-	(*LoginUserV1Response)(nil),    // 8: keyper.v1.LoginUserV1Response
-	(*CreateSecretV1Response)(nil), // 9: keyper.v1.CreateSecretV1Response
-	(*GetSecretV1Response)(nil),    // 10: keyper.v1.GetSecretV1Response
-	(*ListSecretsV1Response)(nil),  // 11: keyper.v1.ListSecretsV1Response
-	(*UpdateSecretV1Response)(nil), // 12: keyper.v1.UpdateSecretV1Response
-	(*DeleteSecretV1Response)(nil), // 13: keyper.v1.DeleteSecretV1Response
+	(*RegisterUserV1Request)(nil),       // 0: keyper.v1.RegisterUserV1Request
+	(*LoginUserV1Request)(nil),          // 1: keyper.v1.LoginUserV1Request
+	(*CreateSecretV1Request)(nil),       // 2: keyper.v1.CreateSecretV1Request
+	(*UpdateSecretV1Request)(nil),       // 3: keyper.v1.UpdateSecretV1Request
+	(*UpdateSecretsDataV1Request)(nil),  // 4: keyper.v1.UpdateSecretsDataV1Request
+	(*GetSecretV1Request)(nil),          // 5: keyper.v1.GetSecretV1Request
+	(*GetSecretsDataV1Request)(nil),     // 6: keyper.v1.GetSecretsDataV1Request
+	(*emptypb.Empty)(nil),               // 7: google.protobuf.Empty
+	(*DeleteSecretV1Request)(nil),       // 8: keyper.v1.DeleteSecretV1Request
+	(*RegisterUserV1Response)(nil),      // 9: keyper.v1.RegisterUserV1Response
+	(*LoginUserV1Response)(nil),         // 10: keyper.v1.LoginUserV1Response
+	(*CreateSecretV1Response)(nil),      // 11: keyper.v1.CreateSecretV1Response
+	(*UpdateSecretV1Response)(nil),      // 12: keyper.v1.UpdateSecretV1Response
+	(*UpdateSecretsDataV1Response)(nil), // 13: keyper.v1.UpdateSecretsDataV1Response
+	(*GetSecretV1Response)(nil),         // 14: keyper.v1.GetSecretV1Response
+	(*GetSecretsDataV1Response)(nil),    // 15: keyper.v1.GetSecretsDataV1Response
+	(*ListSecretsV1Response)(nil),       // 16: keyper.v1.ListSecretsV1Response
+	(*DeleteSecretV1Response)(nil),      // 17: keyper.v1.DeleteSecretV1Response
 }
 var file_keyper_v1_keyper_proto_depIdxs = []int32{
 	0,  // 0: keyper.v1.UserService.RegisterUserV1:input_type -> keyper.v1.RegisterUserV1Request
 	1,  // 1: keyper.v1.UserService.LoginUserV1:input_type -> keyper.v1.LoginUserV1Request
 	2,  // 2: keyper.v1.SecretService.CreateSecretV1:input_type -> keyper.v1.CreateSecretV1Request
-	3,  // 3: keyper.v1.SecretService.GetSecretV1:input_type -> keyper.v1.GetSecretV1Request
-	4,  // 4: keyper.v1.SecretService.ListSecretsV1:input_type -> google.protobuf.Empty
-	5,  // 5: keyper.v1.SecretService.UpdateSecretV1:input_type -> keyper.v1.UpdateSecretV1Request
-	6,  // 6: keyper.v1.SecretService.DeleteSecretV1:input_type -> keyper.v1.DeleteSecretV1Request
-	7,  // 7: keyper.v1.UserService.RegisterUserV1:output_type -> keyper.v1.RegisterUserV1Response
-	8,  // 8: keyper.v1.UserService.LoginUserV1:output_type -> keyper.v1.LoginUserV1Response
-	9,  // 9: keyper.v1.SecretService.CreateSecretV1:output_type -> keyper.v1.CreateSecretV1Response
-	10, // 10: keyper.v1.SecretService.GetSecretV1:output_type -> keyper.v1.GetSecretV1Response
-	11, // 11: keyper.v1.SecretService.ListSecretsV1:output_type -> keyper.v1.ListSecretsV1Response
+	3,  // 3: keyper.v1.SecretService.UpdateSecretV1:input_type -> keyper.v1.UpdateSecretV1Request
+	4,  // 4: keyper.v1.SecretService.UpdateSecretsDataV1:input_type -> keyper.v1.UpdateSecretsDataV1Request
+	5,  // 5: keyper.v1.SecretService.GetSecretV1:input_type -> keyper.v1.GetSecretV1Request
+	6,  // 6: keyper.v1.SecretService.GetSecretsDataV1:input_type -> keyper.v1.GetSecretsDataV1Request
+	7,  // 7: keyper.v1.SecretService.ListSecretsV1:input_type -> google.protobuf.Empty
+	8,  // 8: keyper.v1.SecretService.DeleteSecretV1:input_type -> keyper.v1.DeleteSecretV1Request
+	9,  // 9: keyper.v1.UserService.RegisterUserV1:output_type -> keyper.v1.RegisterUserV1Response
+	10, // 10: keyper.v1.UserService.LoginUserV1:output_type -> keyper.v1.LoginUserV1Response
+	11, // 11: keyper.v1.SecretService.CreateSecretV1:output_type -> keyper.v1.CreateSecretV1Response
 	12, // 12: keyper.v1.SecretService.UpdateSecretV1:output_type -> keyper.v1.UpdateSecretV1Response
-	13, // 13: keyper.v1.SecretService.DeleteSecretV1:output_type -> keyper.v1.DeleteSecretV1Response
-	7,  // [7:14] is the sub-list for method output_type
-	0,  // [0:7] is the sub-list for method input_type
+	13, // 13: keyper.v1.SecretService.UpdateSecretsDataV1:output_type -> keyper.v1.UpdateSecretsDataV1Response
+	14, // 14: keyper.v1.SecretService.GetSecretV1:output_type -> keyper.v1.GetSecretV1Response
+	15, // 15: keyper.v1.SecretService.GetSecretsDataV1:output_type -> keyper.v1.GetSecretsDataV1Response
+	16, // 16: keyper.v1.SecretService.ListSecretsV1:output_type -> keyper.v1.ListSecretsV1Response
+	17, // 17: keyper.v1.SecretService.DeleteSecretV1:output_type -> keyper.v1.DeleteSecretV1Response
+	9,  // [9:18] is the sub-list for method output_type
+	0,  // [0:9] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

@@ -96,7 +96,7 @@ type Secret struct {
 	// Secrets metadata.
 	Metadata []byte `protobuf:"bytes,4,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	// Secrets data.
-	Data [][]byte `protobuf:"bytes,5,rep,name=data,proto3" json:"data,omitempty"`
+	Data []byte `protobuf:"bytes,5,opt,name=data,proto3,oneof" json:"data,omitempty"`
 	// Secrets arbitrary description or comment.
 	Comment *string `protobuf:"bytes,6,opt,name=comment,proto3,oneof" json:"comment,omitempty"`
 	// Secrets creation time.
@@ -165,7 +165,7 @@ func (x *Secret) GetMetadata() []byte {
 	return nil
 }
 
-func (x *Secret) GetData() [][]byte {
+func (x *Secret) GetData() []byte {
 	if x != nil {
 		return x.Data
 	}
@@ -287,6 +287,240 @@ func (x *CreateSecretV1Response) GetResult() *CreateSecretV1Response_CreateSecre
 	return nil
 }
 
+// Secrets update result.
+type UpdateSecretResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Update error description.
+	Error         *string `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretResult) Reset() {
+	*x = UpdateSecretResult{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretResult) ProtoMessage() {}
+
+func (x *UpdateSecretResult) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretResult.ProtoReflect.Descriptor instead.
+func (*UpdateSecretResult) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateSecretResult) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
+	}
+	return ""
+}
+
+// UpdateSecretV1Request contains a secret to update in the service storage.
+type UpdateSecretV1Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secret to update.
+	Secret        *Secret `protobuf:"bytes,1,opt,name=secret,proto3" json:"secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretV1Request) Reset() {
+	*x = UpdateSecretV1Request{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretV1Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretV1Request) ProtoMessage() {}
+
+func (x *UpdateSecretV1Request) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretV1Request.ProtoReflect.Descriptor instead.
+func (*UpdateSecretV1Request) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateSecretV1Request) GetSecret() *Secret {
+	if x != nil {
+		return x.Secret
+	}
+	return nil
+}
+
+// UpdateSecretV1Response is received in response to a UpdateSecretV1 rpc.
+//
+// It contains a secrets update result.
+type UpdateSecretV1Response struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets update result.
+	Result        *UpdateSecretResult `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretV1Response) Reset() {
+	*x = UpdateSecretV1Response{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretV1Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretV1Response) ProtoMessage() {}
+
+func (x *UpdateSecretV1Response) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretV1Response.ProtoReflect.Descriptor instead.
+func (*UpdateSecretV1Response) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateSecretV1Response) GetResult() *UpdateSecretResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+// UpdateSecretsDataV1Request contains a secrets data to update in the service storage.
+type UpdateSecretsDataV1Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets data.
+	UpdateData    *UpdateSecretsDataV1Request_UpdateSecretsData `protobuf:"bytes,1,opt,name=update_data,json=updateData,proto3" json:"update_data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretsDataV1Request) Reset() {
+	*x = UpdateSecretsDataV1Request{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretsDataV1Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretsDataV1Request) ProtoMessage() {}
+
+func (x *UpdateSecretsDataV1Request) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretsDataV1Request.ProtoReflect.Descriptor instead.
+func (*UpdateSecretsDataV1Request) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateSecretsDataV1Request) GetUpdateData() *UpdateSecretsDataV1Request_UpdateSecretsData {
+	if x != nil {
+		return x.UpdateData
+	}
+	return nil
+}
+
+// UpdateSecretsDataV1Response is received in response to a UpdateSecretsDataV1 rpc.
+//
+// It contains a secrets data update result.
+type UpdateSecretsDataV1Response struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets update result.
+	Result        *UpdateSecretResult `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretsDataV1Response) Reset() {
+	*x = UpdateSecretsDataV1Response{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretsDataV1Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretsDataV1Response) ProtoMessage() {}
+
+func (x *UpdateSecretsDataV1Response) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretsDataV1Response.ProtoReflect.Descriptor instead.
+func (*UpdateSecretsDataV1Response) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateSecretsDataV1Response) GetResult() *UpdateSecretResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
 // GetSecretV1Request contains an identifier of a secret to return.
 type GetSecretV1Request struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -298,7 +532,7 @@ type GetSecretV1Request struct {
 
 func (x *GetSecretV1Request) Reset() {
 	*x = GetSecretV1Request{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[3]
+	mi := &file_keyper_v1_secret_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -310,7 +544,7 @@ func (x *GetSecretV1Request) String() string {
 func (*GetSecretV1Request) ProtoMessage() {}
 
 func (x *GetSecretV1Request) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[3]
+	mi := &file_keyper_v1_secret_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -323,7 +557,7 @@ func (x *GetSecretV1Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretV1Request.ProtoReflect.Descriptor instead.
 func (*GetSecretV1Request) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{3}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetSecretV1Request) GetId() string {
@@ -346,7 +580,7 @@ type GetSecretV1Response struct {
 
 func (x *GetSecretV1Response) Reset() {
 	*x = GetSecretV1Response{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[4]
+	mi := &file_keyper_v1_secret_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -358,7 +592,7 @@ func (x *GetSecretV1Response) String() string {
 func (*GetSecretV1Response) ProtoMessage() {}
 
 func (x *GetSecretV1Response) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[4]
+	mi := &file_keyper_v1_secret_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -371,10 +605,104 @@ func (x *GetSecretV1Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSecretV1Response.ProtoReflect.Descriptor instead.
 func (*GetSecretV1Response) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{4}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetSecretV1Response) GetResult() *GetSecretV1Response_GetSecretResult {
+	if x != nil {
+		return x.Result
+	}
+	return nil
+}
+
+// GetSecretsDataV1Request contains an identifier of a secrets data to return.
+type GetSecretsDataV1Request struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets identifier (uuid).
+	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSecretsDataV1Request) Reset() {
+	*x = GetSecretsDataV1Request{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSecretsDataV1Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSecretsDataV1Request) ProtoMessage() {}
+
+func (x *GetSecretsDataV1Request) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSecretsDataV1Request.ProtoReflect.Descriptor instead.
+func (*GetSecretsDataV1Request) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *GetSecretsDataV1Request) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// GetSecretsDataV1Response is received in response to a GetSecretsDataV1 rpc.
+//
+// It contains a secrets data with identifier from request or an error.
+type GetSecretsDataV1Response struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets getting result.
+	Result        *GetSecretsDataV1Response_GetSecretsDataResult `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSecretsDataV1Response) Reset() {
+	*x = GetSecretsDataV1Response{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSecretsDataV1Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSecretsDataV1Response) ProtoMessage() {}
+
+func (x *GetSecretsDataV1Response) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSecretsDataV1Response.ProtoReflect.Descriptor instead.
+func (*GetSecretsDataV1Response) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetSecretsDataV1Response) GetResult() *GetSecretsDataV1Response_GetSecretsDataResult {
 	if x != nil {
 		return x.Result
 	}
@@ -394,7 +722,7 @@ type ListSecretsV1Response struct {
 
 func (x *ListSecretsV1Response) Reset() {
 	*x = ListSecretsV1Response{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[5]
+	mi := &file_keyper_v1_secret_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -406,7 +734,7 @@ func (x *ListSecretsV1Response) String() string {
 func (*ListSecretsV1Response) ProtoMessage() {}
 
 func (x *ListSecretsV1Response) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[5]
+	mi := &file_keyper_v1_secret_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -419,106 +747,12 @@ func (x *ListSecretsV1Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSecretsV1Response.ProtoReflect.Descriptor instead.
 func (*ListSecretsV1Response) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{5}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListSecretsV1Response) GetSecret() []*Secret {
 	if x != nil {
 		return x.Secret
-	}
-	return nil
-}
-
-// UpdateSecretV1Request contains a secrets data to update in the service storage.
-type UpdateSecretV1Request struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Secret with data to update.
-	Secret        *Secret `protobuf:"bytes,1,opt,name=secret,proto3" json:"secret,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateSecretV1Request) Reset() {
-	*x = UpdateSecretV1Request{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateSecretV1Request) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateSecretV1Request) ProtoMessage() {}
-
-func (x *UpdateSecretV1Request) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateSecretV1Request.ProtoReflect.Descriptor instead.
-func (*UpdateSecretV1Request) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *UpdateSecretV1Request) GetSecret() *Secret {
-	if x != nil {
-		return x.Secret
-	}
-	return nil
-}
-
-// UpdateSecretV1Response is received in response to a UpdateSecretV1 rpc.
-//
-// It contains a secrets update result.
-type UpdateSecretV1Response struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Secrets update result.
-	Result        *UpdateSecretV1Response_UpdateSecretResult `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateSecretV1Response) Reset() {
-	*x = UpdateSecretV1Response{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateSecretV1Response) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateSecretV1Response) ProtoMessage() {}
-
-func (x *UpdateSecretV1Response) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateSecretV1Response.ProtoReflect.Descriptor instead.
-func (*UpdateSecretV1Response) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *UpdateSecretV1Response) GetResult() *UpdateSecretV1Response_UpdateSecretResult {
-	if x != nil {
-		return x.Result
 	}
 	return nil
 }
@@ -534,7 +768,7 @@ type DeleteSecretV1Request struct {
 
 func (x *DeleteSecretV1Request) Reset() {
 	*x = DeleteSecretV1Request{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[8]
+	mi := &file_keyper_v1_secret_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -546,7 +780,7 @@ func (x *DeleteSecretV1Request) String() string {
 func (*DeleteSecretV1Request) ProtoMessage() {}
 
 func (x *DeleteSecretV1Request) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[8]
+	mi := &file_keyper_v1_secret_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -559,7 +793,7 @@ func (x *DeleteSecretV1Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretV1Request.ProtoReflect.Descriptor instead.
 func (*DeleteSecretV1Request) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{8}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteSecretV1Request) GetId() string {
@@ -582,7 +816,7 @@ type DeleteSecretV1Response struct {
 
 func (x *DeleteSecretV1Response) Reset() {
 	*x = DeleteSecretV1Response{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[9]
+	mi := &file_keyper_v1_secret_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -594,7 +828,7 @@ func (x *DeleteSecretV1Response) String() string {
 func (*DeleteSecretV1Response) ProtoMessage() {}
 
 func (x *DeleteSecretV1Response) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[9]
+	mi := &file_keyper_v1_secret_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,7 +841,7 @@ func (x *DeleteSecretV1Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSecretV1Response.ProtoReflect.Descriptor instead.
 func (*DeleteSecretV1Response) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{9}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DeleteSecretV1Response) GetResult() *DeleteSecretV1Response_DeleteSecretResult {
@@ -630,7 +864,7 @@ type CreateSecretV1Response_CreateSecretResult struct {
 
 func (x *CreateSecretV1Response_CreateSecretResult) Reset() {
 	*x = CreateSecretV1Response_CreateSecretResult{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[10]
+	mi := &file_keyper_v1_secret_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +876,7 @@ func (x *CreateSecretV1Response_CreateSecretResult) String() string {
 func (*CreateSecretV1Response_CreateSecretResult) ProtoMessage() {}
 
 func (x *CreateSecretV1Response_CreateSecretResult) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[10]
+	mi := &file_keyper_v1_secret_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +906,61 @@ func (x *CreateSecretV1Response_CreateSecretResult) GetError() string {
 	return ""
 }
 
-// CreateSecretResult contains a result of secrets search.
+type UpdateSecretsDataV1Request_UpdateSecretsData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Secrets identifier (uuid).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Secrets data to update.
+	Data          []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateSecretsDataV1Request_UpdateSecretsData) Reset() {
+	*x = UpdateSecretsDataV1Request_UpdateSecretsData{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateSecretsDataV1Request_UpdateSecretsData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateSecretsDataV1Request_UpdateSecretsData) ProtoMessage() {}
+
+func (x *UpdateSecretsDataV1Request_UpdateSecretsData) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateSecretsDataV1Request_UpdateSecretsData.ProtoReflect.Descriptor instead.
+func (*UpdateSecretsDataV1Request_UpdateSecretsData) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{6, 0}
+}
+
+func (x *UpdateSecretsDataV1Request_UpdateSecretsData) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateSecretsDataV1Request_UpdateSecretsData) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+// GetSecretResult contains a result of secrets search.
 type GetSecretV1Response_GetSecretResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Secret with identifier from request.
@@ -685,7 +973,7 @@ type GetSecretV1Response_GetSecretResult struct {
 
 func (x *GetSecretV1Response_GetSecretResult) Reset() {
 	*x = GetSecretV1Response_GetSecretResult{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[11]
+	mi := &file_keyper_v1_secret_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -697,7 +985,7 @@ func (x *GetSecretV1Response_GetSecretResult) String() string {
 func (*GetSecretV1Response_GetSecretResult) ProtoMessage() {}
 
 func (x *GetSecretV1Response_GetSecretResult) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[11]
+	mi := &file_keyper_v1_secret_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -710,7 +998,7 @@ func (x *GetSecretV1Response_GetSecretResult) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetSecretV1Response_GetSecretResult.ProtoReflect.Descriptor instead.
 func (*GetSecretV1Response_GetSecretResult) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{4, 0}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{9, 0}
 }
 
 func (x *GetSecretV1Response_GetSecretResult) GetSecret() *Secret {
@@ -727,30 +1015,32 @@ func (x *GetSecretV1Response_GetSecretResult) GetError() string {
 	return ""
 }
 
-// Secret update result.
-type UpdateSecretV1Response_UpdateSecretResult struct {
+// GetSecretsDataResult contains a data of secrets search.
+type GetSecretsDataV1Response_GetSecretsDataResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Update error description.
-	Error         *string `protobuf:"bytes,1,opt,name=error,proto3,oneof" json:"error,omitempty"`
+	// Secrets data to return.
+	Data []byte `protobuf:"bytes,1,opt,name=data,proto3,oneof" json:"data,omitempty"`
+	// Error description.
+	Error         *string `protobuf:"bytes,2,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateSecretV1Response_UpdateSecretResult) Reset() {
-	*x = UpdateSecretV1Response_UpdateSecretResult{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[12]
+func (x *GetSecretsDataV1Response_GetSecretsDataResult) Reset() {
+	*x = GetSecretsDataV1Response_GetSecretsDataResult{}
+	mi := &file_keyper_v1_secret_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateSecretV1Response_UpdateSecretResult) String() string {
+func (x *GetSecretsDataV1Response_GetSecretsDataResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateSecretV1Response_UpdateSecretResult) ProtoMessage() {}
+func (*GetSecretsDataV1Response_GetSecretsDataResult) ProtoMessage() {}
 
-func (x *UpdateSecretV1Response_UpdateSecretResult) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[12]
+func (x *GetSecretsDataV1Response_GetSecretsDataResult) ProtoReflect() protoreflect.Message {
+	mi := &file_keyper_v1_secret_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,12 +1051,19 @@ func (x *UpdateSecretV1Response_UpdateSecretResult) ProtoReflect() protoreflect.
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateSecretV1Response_UpdateSecretResult.ProtoReflect.Descriptor instead.
-func (*UpdateSecretV1Response_UpdateSecretResult) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{7, 0}
+// Deprecated: Use GetSecretsDataV1Response_GetSecretsDataResult.ProtoReflect.Descriptor instead.
+func (*GetSecretsDataV1Response_GetSecretsDataResult) Descriptor() ([]byte, []int) {
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{11, 0}
 }
 
-func (x *UpdateSecretV1Response_UpdateSecretResult) GetError() string {
+func (x *GetSecretsDataV1Response_GetSecretsDataResult) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *GetSecretsDataV1Response_GetSecretsDataResult) GetError() string {
 	if x != nil && x.Error != nil {
 		return *x.Error
 	}
@@ -784,7 +1081,7 @@ type DeleteSecretV1Response_DeleteSecretResult struct {
 
 func (x *DeleteSecretV1Response_DeleteSecretResult) Reset() {
 	*x = DeleteSecretV1Response_DeleteSecretResult{}
-	mi := &file_keyper_v1_secret_proto_msgTypes[13]
+	mi := &file_keyper_v1_secret_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -796,7 +1093,7 @@ func (x *DeleteSecretV1Response_DeleteSecretResult) String() string {
 func (*DeleteSecretV1Response_DeleteSecretResult) ProtoMessage() {}
 
 func (x *DeleteSecretV1Response_DeleteSecretResult) ProtoReflect() protoreflect.Message {
-	mi := &file_keyper_v1_secret_proto_msgTypes[13]
+	mi := &file_keyper_v1_secret_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -809,7 +1106,7 @@ func (x *DeleteSecretV1Response_DeleteSecretResult) ProtoReflect() protoreflect.
 
 // Deprecated: Use DeleteSecretV1Response_DeleteSecretResult.ProtoReflect.Descriptor instead.
 func (*DeleteSecretV1Response_DeleteSecretResult) Descriptor() ([]byte, []int) {
-	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{9, 0}
+	return file_keyper_v1_secret_proto_rawDescGZIP(), []int{14, 0}
 }
 
 func (x *DeleteSecretV1Response_DeleteSecretResult) GetError() string {
@@ -823,20 +1120,21 @@ var File_keyper_v1_secret_proto protoreflect.FileDescriptor
 
 const file_keyper_v1_secret_proto_rawDesc = "" +
 	"\n" +
-	"\x16keyper/v1/secret.proto\x12\tkeyper.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x92\x03\n" +
+	"\x16keyper/v1/secret.proto\x12\tkeyper.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x9f\x03\n" +
 	"\x06Secret\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x02id\x88\x01\x01\x12 \n" +
 	"\x04name\x18\x02 \x01(\tB\f\xbaH\t\xc8\x01\x01r\x04\x10\x01\x18dR\x04name\x121\n" +
 	"\x04type\x18\x03 \x01(\x0e2\x15.keyper.v1.SecretTypeB\x06\xbaH\x03\xc8\x01\x01R\x04type\x12&\n" +
 	"\bmetadata\x18\x04 \x01(\fB\n" +
-	"\xbaH\a\xc8\x01\x01z\x02\x10\x01R\bmetadata\x12\x1c\n" +
-	"\x04data\x18\x05 \x03(\fB\b\xbaH\x05\x92\x01\x02\b\x01R\x04data\x12\x1d\n" +
-	"\acomment\x18\x06 \x01(\tH\x01R\acomment\x88\x01\x01\x12>\n" +
+	"\xbaH\a\xc8\x01\x01z\x02\x10\x01R\bmetadata\x12 \n" +
+	"\x04data\x18\x05 \x01(\fB\a\xbaH\x04z\x02\x10\x01H\x01R\x04data\x88\x01\x01\x12\x1d\n" +
+	"\acomment\x18\x06 \x01(\tH\x02R\acomment\x88\x01\x01\x12>\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x02R\tcreatedAt\x88\x01\x01\x12>\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x03R\tcreatedAt\x88\x01\x01\x12>\n" +
 	"\n" +
-	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x03R\tupdatedAt\x88\x01\x01B\x05\n" +
-	"\x03_idB\n" +
+	"updated_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampH\x04R\tupdatedAt\x88\x01\x01B\x05\n" +
+	"\x03_idB\a\n" +
+	"\x05_dataB\n" +
 	"\n" +
 	"\b_commentB\r\n" +
 	"\v_created_atB\r\n" +
@@ -849,7 +1147,23 @@ const file_keyper_v1_secret_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01H\x00R\x02id\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x01R\x05error\x88\x01\x01B\x05\n" +
 	"\x03_idB\b\n" +
-	"\x06_error\"1\n" +
+	"\x06_error\"9\n" +
+	"\x12UpdateSecretResult\x12\x19\n" +
+	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"J\n" +
+	"\x15UpdateSecretV1Request\x121\n" +
+	"\x06secret\x18\x01 \x01(\v2\x11.keyper.v1.SecretB\x06\xbaH\x03\xc8\x01\x01R\x06secret\"W\n" +
+	"\x16UpdateSecretV1Response\x12=\n" +
+	"\x06result\x18\x01 \x01(\v2\x1d.keyper.v1.UpdateSecretResultB\x06\xbaH\x03\xc8\x01\x01R\x06result\"\xd0\x01\n" +
+	"\x1aUpdateSecretsDataV1Request\x12`\n" +
+	"\vupdate_data\x18\x01 \x01(\v27.keyper.v1.UpdateSecretsDataV1Request.UpdateSecretsDataB\x06\xbaH\x03\xc8\x01\x01R\n" +
+	"updateData\x1aP\n" +
+	"\x11UpdateSecretsData\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x02id\x12\x1e\n" +
+	"\x04data\x18\x02 \x01(\fB\n" +
+	"\xbaH\a\xc8\x01\x01z\x02\x10\x01R\x04data\"\\\n" +
+	"\x1bUpdateSecretsDataV1Response\x12=\n" +
+	"\x06result\x18\x01 \x01(\v2\x1d.keyper.v1.UpdateSecretResultB\x06\xbaH\x03\xc8\x01\x01R\x06result\"1\n" +
 	"\x12GetSecretV1Request\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x02id\"\xd8\x01\n" +
 	"\x13GetSecretV1Response\x12N\n" +
@@ -858,16 +1172,18 @@ const file_keyper_v1_secret_proto_rawDesc = "" +
 	"\x06secret\x18\x01 \x01(\v2\x11.keyper.v1.SecretH\x00R\x06secret\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\x02 \x01(\tH\x01R\x05error\x88\x01\x01B\t\n" +
 	"\a_secretB\b\n" +
+	"\x06_error\"6\n" +
+	"\x17GetSecretsDataV1Request\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x02id\"\xdc\x01\n" +
+	"\x18GetSecretsDataV1Response\x12X\n" +
+	"\x06result\x18\x01 \x01(\v28.keyper.v1.GetSecretsDataV1Response.GetSecretsDataResultB\x06\xbaH\x03\xc8\x01\x01R\x06result\x1af\n" +
+	"\x14GetSecretsDataResult\x12 \n" +
+	"\x04data\x18\x01 \x01(\fB\a\xbaH\x04z\x02\x10\x01H\x00R\x04data\x88\x01\x01\x12\x19\n" +
+	"\x05error\x18\x02 \x01(\tH\x01R\x05error\x88\x01\x01B\a\n" +
+	"\x05_dataB\b\n" +
 	"\x06_error\"B\n" +
 	"\x15ListSecretsV1Response\x12)\n" +
-	"\x06secret\x18\x01 \x03(\v2\x11.keyper.v1.SecretR\x06secret\"J\n" +
-	"\x15UpdateSecretV1Request\x121\n" +
-	"\x06secret\x18\x01 \x01(\v2\x11.keyper.v1.SecretB\x06\xbaH\x03\xc8\x01\x01R\x06secret\"\xa9\x01\n" +
-	"\x16UpdateSecretV1Response\x12T\n" +
-	"\x06result\x18\x01 \x01(\v24.keyper.v1.UpdateSecretV1Response.UpdateSecretResultB\x06\xbaH\x03\xc8\x01\x01R\x06result\x1a9\n" +
-	"\x12UpdateSecretResult\x12\x19\n" +
-	"\x05error\x18\x01 \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
-	"\x06_error\"4\n" +
+	"\x06secret\x18\x01 \x03(\v2\x11.keyper.v1.SecretR\x06secret\"4\n" +
 	"\x15DeleteSecretV1Request\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\tB\v\xbaH\b\xc8\x01\x01r\x03\xb0\x01\x01R\x02id\"\xa9\x01\n" +
 	"\x16DeleteSecretV1Response\x12T\n" +
@@ -898,42 +1214,51 @@ func file_keyper_v1_secret_proto_rawDescGZIP() []byte {
 }
 
 var file_keyper_v1_secret_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_keyper_v1_secret_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_keyper_v1_secret_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_keyper_v1_secret_proto_goTypes = []any{
-	(SecretType)(0),                                   // 0: keyper.v1.SecretType
-	(*Secret)(nil),                                    // 1: keyper.v1.Secret
-	(*CreateSecretV1Request)(nil),                     // 2: keyper.v1.CreateSecretV1Request
-	(*CreateSecretV1Response)(nil),                    // 3: keyper.v1.CreateSecretV1Response
-	(*GetSecretV1Request)(nil),                        // 4: keyper.v1.GetSecretV1Request
-	(*GetSecretV1Response)(nil),                       // 5: keyper.v1.GetSecretV1Response
-	(*ListSecretsV1Response)(nil),                     // 6: keyper.v1.ListSecretsV1Response
-	(*UpdateSecretV1Request)(nil),                     // 7: keyper.v1.UpdateSecretV1Request
-	(*UpdateSecretV1Response)(nil),                    // 8: keyper.v1.UpdateSecretV1Response
-	(*DeleteSecretV1Request)(nil),                     // 9: keyper.v1.DeleteSecretV1Request
-	(*DeleteSecretV1Response)(nil),                    // 10: keyper.v1.DeleteSecretV1Response
-	(*CreateSecretV1Response_CreateSecretResult)(nil), // 11: keyper.v1.CreateSecretV1Response.CreateSecretResult
-	(*GetSecretV1Response_GetSecretResult)(nil),       // 12: keyper.v1.GetSecretV1Response.GetSecretResult
-	(*UpdateSecretV1Response_UpdateSecretResult)(nil), // 13: keyper.v1.UpdateSecretV1Response.UpdateSecretResult
-	(*DeleteSecretV1Response_DeleteSecretResult)(nil), // 14: keyper.v1.DeleteSecretV1Response.DeleteSecretResult
-	(*timestamppb.Timestamp)(nil),                     // 15: google.protobuf.Timestamp
+	(SecretType)(0),                                       // 0: keyper.v1.SecretType
+	(*Secret)(nil),                                        // 1: keyper.v1.Secret
+	(*CreateSecretV1Request)(nil),                         // 2: keyper.v1.CreateSecretV1Request
+	(*CreateSecretV1Response)(nil),                        // 3: keyper.v1.CreateSecretV1Response
+	(*UpdateSecretResult)(nil),                            // 4: keyper.v1.UpdateSecretResult
+	(*UpdateSecretV1Request)(nil),                         // 5: keyper.v1.UpdateSecretV1Request
+	(*UpdateSecretV1Response)(nil),                        // 6: keyper.v1.UpdateSecretV1Response
+	(*UpdateSecretsDataV1Request)(nil),                    // 7: keyper.v1.UpdateSecretsDataV1Request
+	(*UpdateSecretsDataV1Response)(nil),                   // 8: keyper.v1.UpdateSecretsDataV1Response
+	(*GetSecretV1Request)(nil),                            // 9: keyper.v1.GetSecretV1Request
+	(*GetSecretV1Response)(nil),                           // 10: keyper.v1.GetSecretV1Response
+	(*GetSecretsDataV1Request)(nil),                       // 11: keyper.v1.GetSecretsDataV1Request
+	(*GetSecretsDataV1Response)(nil),                      // 12: keyper.v1.GetSecretsDataV1Response
+	(*ListSecretsV1Response)(nil),                         // 13: keyper.v1.ListSecretsV1Response
+	(*DeleteSecretV1Request)(nil),                         // 14: keyper.v1.DeleteSecretV1Request
+	(*DeleteSecretV1Response)(nil),                        // 15: keyper.v1.DeleteSecretV1Response
+	(*CreateSecretV1Response_CreateSecretResult)(nil),     // 16: keyper.v1.CreateSecretV1Response.CreateSecretResult
+	(*UpdateSecretsDataV1Request_UpdateSecretsData)(nil),  // 17: keyper.v1.UpdateSecretsDataV1Request.UpdateSecretsData
+	(*GetSecretV1Response_GetSecretResult)(nil),           // 18: keyper.v1.GetSecretV1Response.GetSecretResult
+	(*GetSecretsDataV1Response_GetSecretsDataResult)(nil), // 19: keyper.v1.GetSecretsDataV1Response.GetSecretsDataResult
+	(*DeleteSecretV1Response_DeleteSecretResult)(nil),     // 20: keyper.v1.DeleteSecretV1Response.DeleteSecretResult
+	(*timestamppb.Timestamp)(nil),                         // 21: google.protobuf.Timestamp
 }
 var file_keyper_v1_secret_proto_depIdxs = []int32{
 	0,  // 0: keyper.v1.Secret.type:type_name -> keyper.v1.SecretType
-	15, // 1: keyper.v1.Secret.created_at:type_name -> google.protobuf.Timestamp
-	15, // 2: keyper.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
+	21, // 1: keyper.v1.Secret.created_at:type_name -> google.protobuf.Timestamp
+	21, // 2: keyper.v1.Secret.updated_at:type_name -> google.protobuf.Timestamp
 	1,  // 3: keyper.v1.CreateSecretV1Request.secret:type_name -> keyper.v1.Secret
-	11, // 4: keyper.v1.CreateSecretV1Response.result:type_name -> keyper.v1.CreateSecretV1Response.CreateSecretResult
-	12, // 5: keyper.v1.GetSecretV1Response.result:type_name -> keyper.v1.GetSecretV1Response.GetSecretResult
-	1,  // 6: keyper.v1.ListSecretsV1Response.secret:type_name -> keyper.v1.Secret
-	1,  // 7: keyper.v1.UpdateSecretV1Request.secret:type_name -> keyper.v1.Secret
-	13, // 8: keyper.v1.UpdateSecretV1Response.result:type_name -> keyper.v1.UpdateSecretV1Response.UpdateSecretResult
-	14, // 9: keyper.v1.DeleteSecretV1Response.result:type_name -> keyper.v1.DeleteSecretV1Response.DeleteSecretResult
-	1,  // 10: keyper.v1.GetSecretV1Response.GetSecretResult.secret:type_name -> keyper.v1.Secret
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	16, // 4: keyper.v1.CreateSecretV1Response.result:type_name -> keyper.v1.CreateSecretV1Response.CreateSecretResult
+	1,  // 5: keyper.v1.UpdateSecretV1Request.secret:type_name -> keyper.v1.Secret
+	4,  // 6: keyper.v1.UpdateSecretV1Response.result:type_name -> keyper.v1.UpdateSecretResult
+	17, // 7: keyper.v1.UpdateSecretsDataV1Request.update_data:type_name -> keyper.v1.UpdateSecretsDataV1Request.UpdateSecretsData
+	4,  // 8: keyper.v1.UpdateSecretsDataV1Response.result:type_name -> keyper.v1.UpdateSecretResult
+	18, // 9: keyper.v1.GetSecretV1Response.result:type_name -> keyper.v1.GetSecretV1Response.GetSecretResult
+	19, // 10: keyper.v1.GetSecretsDataV1Response.result:type_name -> keyper.v1.GetSecretsDataV1Response.GetSecretsDataResult
+	1,  // 11: keyper.v1.ListSecretsV1Response.secret:type_name -> keyper.v1.Secret
+	20, // 12: keyper.v1.DeleteSecretV1Response.result:type_name -> keyper.v1.DeleteSecretV1Response.DeleteSecretResult
+	1,  // 13: keyper.v1.GetSecretV1Response.GetSecretResult.secret:type_name -> keyper.v1.Secret
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_keyper_v1_secret_proto_init() }
@@ -942,17 +1267,18 @@ func file_keyper_v1_secret_proto_init() {
 		return
 	}
 	file_keyper_v1_secret_proto_msgTypes[0].OneofWrappers = []any{}
-	file_keyper_v1_secret_proto_msgTypes[10].OneofWrappers = []any{}
-	file_keyper_v1_secret_proto_msgTypes[11].OneofWrappers = []any{}
-	file_keyper_v1_secret_proto_msgTypes[12].OneofWrappers = []any{}
-	file_keyper_v1_secret_proto_msgTypes[13].OneofWrappers = []any{}
+	file_keyper_v1_secret_proto_msgTypes[3].OneofWrappers = []any{}
+	file_keyper_v1_secret_proto_msgTypes[15].OneofWrappers = []any{}
+	file_keyper_v1_secret_proto_msgTypes[17].OneofWrappers = []any{}
+	file_keyper_v1_secret_proto_msgTypes[18].OneofWrappers = []any{}
+	file_keyper_v1_secret_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_keyper_v1_secret_proto_rawDesc), len(file_keyper_v1_secret_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -40,7 +40,7 @@
         "parameters": [
           {
             "name": "body",
-            "description": "CreateSecretV1Request contains a new secret to store in the service. (streaming inputs)",
+            "description": "CreateSecretV1Request contains a new secret to store in the service.",
             "in": "body",
             "required": true,
             "schema": {
@@ -59,18 +59,9 @@
         "operationId": "SecretService_ListSecretsV1",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/v1ListSecretsV1Response"
-                },
-                "error": {
-                  "$ref": "#/definitions/rpcStatus"
-                }
-              },
-              "title": "Stream result of v1ListSecretsV1Response"
+              "$ref": "#/definitions/v1ListSecretsV1Response"
             }
           },
           "default": {
@@ -106,11 +97,45 @@
         "parameters": [
           {
             "name": "body",
-            "description": "UpdateSecretV1Request contains a secrets data to update in the service storage. (streaming inputs)",
+            "description": "UpdateSecretV1Request contains a secret to update in the service storage.",
             "in": "body",
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1UpdateSecretV1Request"
+            }
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/secret/updatedata": {
+      "post": {
+        "summary": "Updates existed secrets data.",
+        "operationId": "SecretService_UpdateSecretsDataV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateSecretsDataV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "UpdateSecretsDataV1Request contains a secrets data to update in the service storage. (streaming inputs)",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateSecretsDataV1Request"
             }
           }
         ],
@@ -125,18 +150,9 @@
         "operationId": "SecretService_GetSecretV1",
         "responses": {
           "200": {
-            "description": "A successful response.(streaming responses)",
+            "description": "A successful response.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/v1GetSecretV1Response"
-                },
-                "error": {
-                  "$ref": "#/definitions/rpcStatus"
-                }
-              },
-              "title": "Stream result of v1GetSecretV1Response"
+              "$ref": "#/definitions/v1GetSecretV1Response"
             }
           },
           "default": {
@@ -167,6 +183,47 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1DeleteSecretV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "Secrets identifier (uuid).",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecretService"
+        ]
+      }
+    },
+    "/v1/secretdata/{id}": {
+      "get": {
+        "summary": "Returns existed secrets data.",
+        "operationId": "SecretService_GetSecretsDataV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1GetSecretsDataV1Response"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1GetSecretsDataV1Response"
             }
           },
           "default": {
@@ -296,17 +353,36 @@
           "description": "Error description."
         }
       },
-      "description": "CreateSecretResult contains a result of secrets search."
+      "description": "GetSecretResult contains a result of secrets search."
     },
-    "UpdateSecretV1ResponseUpdateSecretResult": {
+    "GetSecretsDataV1ResponseGetSecretsDataResult": {
       "type": "object",
       "properties": {
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Secrets data to return."
+        },
         "error": {
           "type": "string",
-          "description": "Update error description."
+          "description": "Error description."
         }
       },
-      "description": "Secret update result."
+      "description": "GetSecretsDataResult contains a data of secrets search."
+    },
+    "UpdateSecretsDataV1RequestUpdateSecretsData": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Secrets identifier (uuid)."
+        },
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Secrets data to update."
+        }
+      }
     },
     "protobufAny": {
       "type": "object",
@@ -375,6 +451,16 @@
         }
       },
       "description": "GetSecretV1Response is received in response to a GetSecretV1 rpc.\n\nIt contains a secret with identifier from request or an error."
+    },
+    "v1GetSecretsDataV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/GetSecretsDataV1ResponseGetSecretsDataResult",
+          "description": "Secrets getting result."
+        }
+      },
+      "description": "GetSecretsDataV1Response is received in response to a GetSecretsDataV1 rpc.\n\nIt contains a secrets data with identifier from request or an error."
     },
     "v1ListSecretsV1Response": {
       "type": "object",
@@ -465,11 +551,8 @@
           "description": "Secrets metadata."
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "byte"
-          },
+          "type": "string",
+          "format": "byte",
           "description": "Secrets data."
         },
         "comment": {
@@ -501,25 +584,55 @@
       "default": "SECRET_TYPE_UNSPECIFIED",
       "description": "SecretType contains a list of secrets types.\n\n - SECRET_TYPE_UNSPECIFIED: SECRET_TYPE_UNSPECIFIED is a default secret type.\n - SECRET_TYPE_CREDENTIALS: SECRET_TYPE_CREDENTIALS specifies a secret with user credentials as data.\n - SECRET_TYPE_TEXT: SECRET_TYPE_TEXT specifies a secret with arbitrary text as data.\n - SECRET_TYPE_BINARY: SECRET_TYPE_BINARY specifies a secret with binary data.\n - SECRET_TYPE_CARD: SECRET_TYPE_TEXT specifies a secret with bank card as data."
     },
+    "v1UpdateSecretResult": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "description": "Update error description."
+        }
+      },
+      "description": "Secrets update result."
+    },
     "v1UpdateSecretV1Request": {
       "type": "object",
       "properties": {
         "secret": {
           "$ref": "#/definitions/v1Secret",
-          "description": "Secret with data to update."
+          "description": "Secret to update."
         }
       },
-      "description": "UpdateSecretV1Request contains a secrets data to update in the service storage."
+      "description": "UpdateSecretV1Request contains a secret to update in the service storage."
     },
     "v1UpdateSecretV1Response": {
       "type": "object",
       "properties": {
         "result": {
-          "$ref": "#/definitions/UpdateSecretV1ResponseUpdateSecretResult",
+          "$ref": "#/definitions/v1UpdateSecretResult",
           "description": "Secrets update result."
         }
       },
       "description": "UpdateSecretV1Response is received in response to a UpdateSecretV1 rpc.\n\nIt contains a secrets update result."
+    },
+    "v1UpdateSecretsDataV1Request": {
+      "type": "object",
+      "properties": {
+        "updateData": {
+          "$ref": "#/definitions/UpdateSecretsDataV1RequestUpdateSecretsData",
+          "description": "Secrets data."
+        }
+      },
+      "description": "UpdateSecretsDataV1Request contains a secrets data to update in the service storage."
+    },
+    "v1UpdateSecretsDataV1Response": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/v1UpdateSecretResult",
+          "description": "Secrets update result."
+        }
+      },
+      "description": "UpdateSecretsDataV1Response is received in response to a UpdateSecretsDataV1 rpc.\n\nIt contains a secrets data update result."
     },
     "v1UserCredentials": {
       "type": "object",
