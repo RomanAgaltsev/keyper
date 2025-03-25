@@ -239,6 +239,7 @@ func (r *SecretRepository) Update(
 			return err
 		}
 
+		// TODO: copygen - Вынести из репозитория
 		secretTo := &model.Secret{
 			ID:        secret.ID,
 			Name:      secretRow.Name,

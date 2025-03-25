@@ -50,6 +50,8 @@ type userAPI struct {
 }
 
 func (a *userAPI) RegisterUserV1(ctx context.Context, request *pb.RegisterUserV1Request) (*pb.RegisterUserV1Response, error) {
+	// TODO: observability добавить спан.
+
 	const op = "userAPI.RegisterUser"
 
 	user := transform.PbToUser(request.Credentials)
