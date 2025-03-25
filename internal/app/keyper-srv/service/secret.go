@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"log/slog"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-srv/repository"
 	"github.com/RomanAgaltsev/keyper/internal/model"
 )
+
+const dataPortionSize = 1024 * 1024
 
 var _ SecretRepository = (*repository.SecretRepository)(nil)
 
@@ -53,8 +56,36 @@ func (s *SecretService) Update(ctx context.Context, userID uuid.UUID, secret *mo
 	})
 }
 
+func (s *SecretService) UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh chan []byte) error {
+	secret, err := s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+
+	for dataChunk := range dataCh {
+		if buf.Len()+len(dataChunk) > dataPortionSize {
+			// TODO: save portion of data and clear dataPortion
+
+			buf.Reset()
+		}
+		buf.Write(dataChunk)
+	}
+
+	if buf.Len() > 0 {
+		// TODO: handle the remainder
+	}
+
+	return nil
+}
+
 func (s *SecretService) Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error) {
 	return s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
+}
+
+func (s *SecretService) GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (chan []byte, error) {
+	return nil, nil
 }
 
 func (s *SecretService) List(ctx context.Context, userID uuid.UUID) (model.Secrets, error) {

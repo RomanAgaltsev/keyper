@@ -3,9 +3,11 @@ package api
 import (
 	"context"
 	"errors"
+	"io"
 	"log/slog"
 
 	"github.com/google/uuid"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,7 +42,9 @@ type UserService interface {
 type SecretService interface {
 	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
 	Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
+	UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh chan []byte) error
 	Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
+	GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (chan []byte, error)
 	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)
 	Delete(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) error
 }
@@ -210,8 +214,66 @@ func (a *secretAPI) UpdateSecretV1(ctx context.Context, request *pb.UpdateSecret
 }
 
 func (a *secretAPI) UpdateSecretsDataV1(stream grpc.ClientStreamingServer[pb.UpdateSecretsDataV1Request, pb.UpdateSecretsDataV1Response]) error {
-	// TODO: add secrets ownership check
-	return nil
+	const op = "secretAPI.UpdateSecretsData"
+
+	ctx := stream.Context()
+
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
+	dataCh := make(chan []byte, 1)
+
+	request, err := stream.Recv()
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Internal, msgInternalError)
+	}
+
+	dataCh <- request.UpdateData.GetData()
+
+	secretIDString := request.UpdateData.Id
+	secretID, err := uuid.Parse(secretIDString)
+
+	g := errgroup.Group{}
+
+	g.Go(func() error {
+		for {
+			request, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				return err
+			}
+			dataCh <- request.UpdateData.GetData()
+		}
+		close(dataCh)
+
+		return nil
+	})
+
+	g.Go(func() error {
+		err := a.secret.UpdateData(ctx, userID, secretID, dataCh)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Internal, msgInternalError)
+	}
+
+	return stream.SendAndClose(&pb.UpdateSecretsDataV1Response{
+		Result: &pb.UpdateSecretResult{
+			Error: nil,
+		},
+	})
 }
 
 func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Request) (*pb.GetSecretV1Response, error) {
@@ -250,7 +312,48 @@ func (a *secretAPI) GetSecretV1(ctx context.Context, request *pb.GetSecretV1Requ
 }
 
 func (a *secretAPI) GetSecretsDataV1(request *pb.GetSecretsDataV1Request, stream grpc.ServerStreamingServer[pb.GetSecretsDataV1Response]) error {
-	// TODO: add secrets ownership check
+	const op = "secretAPI.GetSecretsData"
+
+	ctx := stream.Context()
+
+	userID, err := auth.GetUserUID(ctx)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Unauthenticated, msgMissingUserID)
+	}
+
+	secretID, err := uuid.Parse(request.Id)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Internal, msgInternalError)
+	}
+
+	dataCh, err := a.secret.GetData(ctx, userID, secretID)
+	if err != nil {
+		a.log.Error(op, sl.Err(err))
+		return status.Error(codes.Internal, msgInternalError)
+	}
+
+	for dataChunk := range dataCh {
+		err := stream.Send(&pb.GetSecretsDataV1Response{
+			Result: &pb.GetSecretsDataV1Response_GetSecretsDataResult{
+				Data:  dataChunk,
+				Error: nil, // TODO: Decide if this error is needed
+			},
+		})
+
+		if err != nil {
+			a.log.Error(op, sl.Err(err))
+			return status.Error(codes.Internal, msgInternalError)
+		}
+	}
+
+	//	return stream.SendAndClose(&pb.UpdateSecretsDataV1Response{
+	//		Result: &pb.UpdateSecretResult{
+	//			Error: nil,
+	//		},
+	//	})
+
 	return nil
 }
 
