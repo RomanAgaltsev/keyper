@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -215,7 +216,7 @@ func (r *SecretRepository) UpdateData(
 
 	filename := fmt.Sprintf("%s/%s", dataPath, secretID.String())
 
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o666)
+	file, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o666)
 	if err != nil {
 		return err
 	}
@@ -267,6 +268,49 @@ func (r *SecretRepository) Get(
 	secret := transform.DBToSecret(secretDB)
 
 	return secret, nil
+}
+
+// TODO: implement data reading from DB
+func (r *SecretRepository) GetData(
+	ctx context.Context,
+	ro []backoff.RetryOption,
+	secretID uuid.UUID,
+) (
+	<-chan []byte,
+	error,
+) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	filename := fmt.Sprintf("%s/%s", dataPath, secretID.String())
+
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: log and return error
+	defer func() { _ = file.Close() }()
+
+	dataCh := make(chan []byte)
+	bufReader := bufio.NewReader(file)
+
+	// TODO: Replace magic number with const or config param
+	dataChunk := make([]byte, 64*1024)
+	for {
+		_, err = bufReader.Read(dataChunk)
+		if err != nil {
+			if err != io.EOF {
+				return nil, err
+			}
+			// TODO: check for remainder
+			// dataCh <- dataChunk
+			break
+		}
+		dataCh <- dataChunk
+	}
+	close(dataCh)
+
+	return nil, nil
 }
 
 func (r *SecretRepository) List(

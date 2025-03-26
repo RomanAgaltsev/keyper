@@ -44,7 +44,7 @@ type SecretService interface {
 	Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
 	UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh <-chan []byte) error
 	Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
-	GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (chan []byte, error)
+	GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (<-chan []byte, error)
 	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)
 	Delete(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) error
 }
@@ -347,12 +347,6 @@ func (a *secretAPI) GetSecretsDataV1(request *pb.GetSecretsDataV1Request, stream
 			return status.Error(codes.Internal, msgInternalError)
 		}
 	}
-
-	//	return stream.SendAndClose(&pb.UpdateSecretsDataV1Response{
-	//		Result: &pb.UpdateSecretResult{
-	//			Error: nil,
-	//		},
-	//	})
 
 	return nil
 }

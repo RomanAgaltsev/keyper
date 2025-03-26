@@ -23,6 +23,7 @@ type SecretRepository interface {
 	Update(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secret *model.Secret, updateFn func(dst, src *model.Secret) (bool, error)) error
 	UpdateData(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID, dataCh <-chan []byte) error
 	Get(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
+	GetData(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID) (<-chan []byte, error)
 	List(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (model.Secrets, error)
 	Delete(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) error
 }
@@ -81,8 +82,22 @@ func (s *SecretService) Get(ctx context.Context, userID uuid.UUID, secretID uuid
 	return s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
 }
 
-func (s *SecretService) GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (chan []byte, error) {
-	return nil, nil
+func (s *SecretService) GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (<-chan []byte, error) {
+	secret, err := s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
+	if err != nil {
+		return nil, err
+	}
+
+	if secret == nil {
+		return nil, ErrSecretDoesntExist
+	}
+
+	dataCh, err := s.repository.GetData(ctx, repository.DefaultRetryOpts, secretID)
+	if err != nil {
+		return nil, err
+	}
+
+	return dataCh, nil
 }
 
 func (s *SecretService) List(ctx context.Context, userID uuid.UUID) (model.Secrets, error) {
