@@ -42,7 +42,7 @@ type UserService interface {
 type SecretService interface {
 	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
 	Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
-	UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh chan []byte) error
+	UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh <-chan []byte) error
 	Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
 	GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (chan []byte, error)
 	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)

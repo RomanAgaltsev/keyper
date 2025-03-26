@@ -1,9 +1,13 @@
 package repository
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"os"
+	"sync"
 	"time"
 
 	"github.com/cenkalti/backoff/v5"
@@ -19,7 +23,12 @@ import (
 	"github.com/RomanAgaltsev/keyper/pkg/transform"
 )
 
-const DefaultRetryMaxElapsedTime = 5 * time.Second
+const (
+	DefaultRetryMaxElapsedTime = 5 * time.Second
+
+	dataPath        = "data"
+	dataPortionSize = 1024 * 1024
+)
 
 var (
 	ErrConflict = errors.New("data conflict")
@@ -123,6 +132,7 @@ func NewSecretRepository(dbpool *pgxpool.Pool) *SecretRepository {
 type SecretRepository struct {
 	db *pgxpool.Pool
 	q  *queries.Queries
+	mu sync.Mutex
 }
 
 func (r *SecretRepository) Create(
@@ -193,6 +203,42 @@ func (r *SecretRepository) Update(
 	})
 }
 
+// TODO: implement data update in DB
+func (r *SecretRepository) UpdateData(
+	ctx context.Context,
+	ro []backoff.RetryOption,
+	secretID uuid.UUID,
+	dataCh <-chan []byte,
+) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	filename := fmt.Sprintf("%s/%s", dataPath, secretID.String())
+
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o666)
+	if err != nil {
+		return err
+	}
+	// TODO: log and return error
+	defer func() { _ = file.Close() }()
+
+	bufWriter := bufio.NewWriterSize(file, dataPortionSize)
+
+	for dataChunk := range dataCh {
+		_, err := bufWriter.Write(dataChunk)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = bufWriter.Flush()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *SecretRepository) Get(
 	ctx context.Context,
 	ro []backoff.RetryOption,
@@ -208,8 +254,14 @@ func (r *SecretRepository) Get(
 		return r.q.GetSecret(ctx, getSecretParams)
 	}, ro...)
 
-	if err != nil {
+	// Check if something has gone wrong
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
+	}
+
+	// Check if there is nothing to return
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
 	}
 
 	secret := transform.DBToSecret(secretDB)

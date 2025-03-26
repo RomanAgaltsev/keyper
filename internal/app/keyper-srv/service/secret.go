@@ -1,8 +1,8 @@
 package service
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/cenkalti/backoff/v5"
@@ -12,13 +12,16 @@ import (
 	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
-const dataPortionSize = 1024 * 1024
+var (
+	_ SecretRepository = (*repository.SecretRepository)(nil)
 
-var _ SecretRepository = (*repository.SecretRepository)(nil)
+	ErrSecretDoesntExist = errors.New("secret doesn't exist")
+)
 
 type SecretRepository interface {
 	Create(ctx context.Context, ro []backoff.RetryOption, secret *model.Secret) (uuid.UUID, error)
 	Update(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secret *model.Secret, updateFn func(dst, src *model.Secret) (bool, error)) error
+	UpdateData(ctx context.Context, ro []backoff.RetryOption, secretID uuid.UUID, dataCh <-chan []byte) error
 	Get(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
 	List(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (model.Secrets, error)
 	Delete(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) error
@@ -56,25 +59,19 @@ func (s *SecretService) Update(ctx context.Context, userID uuid.UUID, secret *mo
 	})
 }
 
-func (s *SecretService) UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh chan []byte) error {
+func (s *SecretService) UpdateData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID, dataCh <-chan []byte) error {
 	secret, err := s.repository.Get(ctx, repository.DefaultRetryOpts, userID, secretID)
 	if err != nil {
 		return err
 	}
 
-	var buf bytes.Buffer
-
-	for dataChunk := range dataCh {
-		if buf.Len()+len(dataChunk) > dataPortionSize {
-			// TODO: save portion of data and clear dataPortion
-
-			buf.Reset()
-		}
-		buf.Write(dataChunk)
+	if secret == nil {
+		return ErrSecretDoesntExist
 	}
 
-	if buf.Len() > 0 {
-		// TODO: handle the remainder
+	err = s.repository.UpdateData(ctx, repository.DefaultRetryOpts, secretID, dataCh)
+	if err != nil {
+		return err
 	}
 
 	return nil
