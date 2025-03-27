@@ -1,6 +1,7 @@
 SHELL=/bin/bash
 GOTOOLCHAIN=go1.24.1
 CLIENT_NAME=keyper-cli
+SERVER_NAME=keyper-srv
 
 POSTGRES_NAME = postgres17
 POSTGRES_USER = postgres
@@ -113,7 +114,7 @@ mig-down: # Roll back a single migration from the current version
 
 .PHONY: clear prep perm
 
-build-cli: prep clients perm
+build-bin: prep clients server perm
 
 clear:
 	rm -rf bin/*
@@ -126,6 +127,9 @@ clients:
 	GOOS=windows GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -buildvcs=false -o=bin/$(CLIENT_NAME)-windows-amd64.exe ./cmd/$(CLIENT_NAME)/...
 	GOOS=darwin GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -buildvcs=false -o=bin/$(CLIENT_NAME)-darwin-amd64 ./cmd/$(CLIENT_NAME)/...
 	GOOS=darwin GOARCH=arm64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -buildvcs=false -o=bin/$(CLIENT_NAME)-darwin-arm64 ./cmd/$(CLIENT_NAME)/...
+
+server:
+	GOOS=linux GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -buildvcs=false -o=bin/$(SERVER_NAME)-linux-amd64 -o=bin/$(SERVER_NAME) ./cmd/$(SERVER_NAME)/...
 
 perm:
 	chmod -R +x bin
