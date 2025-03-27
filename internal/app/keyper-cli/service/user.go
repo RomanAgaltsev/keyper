@@ -11,8 +11,8 @@ import (
 var _ UserClient = (*client.UserClient)(nil)
 
 type UserClient interface {
-	Register(ctx context.Context, user *model.User) error
-	Login(ctx context.Context, user *model.User) error
+	Register(ctx context.Context, user *model.User) (string, error)
+	Login(ctx context.Context, user *model.User) (string, error)
 }
 
 func NewUserService(log *slog.Logger, client UserClient) *UserService {
@@ -28,10 +28,10 @@ type UserService struct {
 	client UserClient
 }
 
-func (s *UserService) Register(ctx context.Context, user *model.User) error {
-	return nil
+func (s *UserService) Register(ctx context.Context, user *model.User) (string, error) {
+	return "", nil
 }
 
-func (s *UserService) Login(ctx context.Context, user *model.User) error {
-	return nil
+func (s *UserService) Login(ctx context.Context, user *model.User) (string, error) {
+	return "", nil
 }

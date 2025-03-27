@@ -15,12 +15,12 @@ func NewUserClient() *UserClient {
 type UserClient struct {
 }
 
-func (c *UserClient) Register(ctx context.Context, user *model.User) error {
-	return nil
+func (c *UserClient) Register(ctx context.Context, user *model.User) (string, error) {
+	return "", nil
 }
 
-func (c *UserClient) Login(ctx context.Context, user *model.User) error {
-	return nil
+func (c *UserClient) Login(ctx context.Context, user *model.User) (string, error) {
+	return "", nil
 }
 
 func NewSecretClient() *SecretClient {

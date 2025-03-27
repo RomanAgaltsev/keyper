@@ -16,8 +16,8 @@ var (
 )
 
 type UserService interface {
-	Register(ctx context.Context, user *model.User) error
-	Login(ctx context.Context, user *model.User) error
+	Register(ctx context.Context, user *model.User) (string, error)
+	Login(ctx context.Context, user *model.User) (string, error)
 }
 
 type SecretService interface {
@@ -50,33 +50,64 @@ type TUI struct {
 func (t *TUI) LoginPage() *tview.Form {
 	var form *tview.Form
 	form = tview.NewForm().
-		AddInputField("Login", "", 20, nil, nil).
-		AddPasswordField("Password", "", 20, '*', nil).
-		AddButton("Login", func() {
-			//
-			_ = form.GetFormItem(0).(*tview.InputField).GetText()
-			// password
-			_ = form.GetFormItem(1).(*tview.InputField).GetText()
+		AddInputField("Login", "", 30, nil, nil).
+		AddPasswordField("Password", "", 30, '*', nil).
+		AddTextArea("Token", "", 50, 1, 50, nil).
+		AddButton("Register", func() {
+			login := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
+			password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
 
-			var err error
+			user := model.User{
+				Login:    login,
+				Password: password,
+			}
 
-			success, err := true, nil
-			if err != nil || !success {
+			// TODO: decide how to store token
+			tokenString, err := t.user.Register(context.Background(), &user)
+			if err != nil {
 				modal := tview.NewModal().
-					SetText("Login failed").
+					SetText("Register failed").
 					AddButtons([]string{"OK"}).
 					SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 						t.Pages.RemovePage("error")
 					})
 				t.Pages.AddPage("error", modal, false, true)
 			} else {
-				t.Pages.SwitchToPage("secrets")
+				form.GetFormItemByLabel("Token").(*tview.TextArea).SetText(tokenString, false)
+			}
+		}).
+		AddButton("Login", func() {
+			login := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
+			password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
+
+			user := model.User{
+				Login:    login,
+				Password: password,
+			}
+
+			// TODO: decide how to store token
+			tokenString, err := t.user.Login(context.Background(), &user)
+			if err != nil {
+				modal := tview.NewModal().
+					SetText("Register failed").
+					AddButtons([]string{"OK"}).
+					SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+						t.Pages.RemovePage("error")
+					})
+				t.Pages.AddPage("error", modal, false, true)
+			} else {
+				form.GetFormItemByLabel("Token").(*tview.TextArea).SetText(tokenString, false)
 			}
 		}).
 		AddButton("Quit", func() {
 			t.App.Stop()
 		})
-	form.SetBorder(true).SetTitle("Login").SetTitleAlign(tview.AlignCenter)
+
+	form.
+		SetBorder(true).
+		SetTitle("Keyper").
+		SetTitleAlign(tview.AlignCenter)
+
 	return form
 }
 

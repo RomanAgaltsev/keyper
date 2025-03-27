@@ -31,7 +31,7 @@ func (a *App) Run() error {
 	a.tui = tui.NewTUI(userService, secretService)
 
 	a.tui.Pages.AddPage("login", a.tui.LoginPage(), true, true)
-	a.tui.Pages.AddPage("secrets", a.tui.SecretsPage(), true, true)
+	a.tui.Pages.AddPage("secrets", a.tui.SecretsPage(), true, false)
 
 	if err := a.tui.App.SetRoot(a.tui.Pages, true).Run(); err != nil {
 		a.log.Error("running TUI application", sl.Err(err))
