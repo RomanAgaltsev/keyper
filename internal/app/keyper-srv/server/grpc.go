@@ -39,14 +39,14 @@ func NewGRPCServer(log *slog.Logger, cfg *config.Config, userService api.UserSer
 			logging_middleware.UnaryServerInterceptor(interceptor.Logger(log), loggerOpts...),
 			recovery_middleware.UnaryServerInterceptor(recoveryOpts...),
 			protovalidate_middleware.UnaryServerInterceptor(validator),
-			interceptor.NewAuthInterceptor(cfg.App.SecretKey),
+			interceptor.AuthUnaryServerInterceptor(cfg.App.SecretKey),
 		),
-		// TODO: decide if stream interceptors are needed
-		//		grpc.ChainStreamInterceptor(
-		//			logging_middleware.StreamServerInterceptor(interceptor.Logger(log), loggerOpts...),
-		//			recovery_middleware.StreamServerInterceptor(recoveryOpts...),
-		//			protovalidate_middleware.StreamServerInterceptor(validator),
-		//		),
+		grpc.ChainStreamInterceptor(
+			logging_middleware.StreamServerInterceptor(interceptor.Logger(log), loggerOpts...),
+			recovery_middleware.StreamServerInterceptor(recoveryOpts...),
+			protovalidate_middleware.StreamServerInterceptor(validator),
+			interceptor.AuthStreamServerInterceptor(cfg.App.SecretKey),
+		),
 	)
 
 	userAPI := api.NewUserAPI(log, cfg.App, userService)

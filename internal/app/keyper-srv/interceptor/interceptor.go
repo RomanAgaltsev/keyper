@@ -54,7 +54,7 @@ func RecoveryOpts() []recovery.Option {
 	}
 }
 
-func NewAuthInterceptor(secretKey string) func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+func AuthUnaryServerInterceptor(secretKey string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 		if _, ok := methodsRequireAuth[info.FullMethod]; !ok {
 			return handler(ctx, req)
@@ -86,12 +86,56 @@ func NewAuthInterceptor(secretKey string) func(ctx context.Context, req any, inf
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 
-		// TODO: check toket lifetime
+		// TODO: check token lifetime
 
 		claims := token.PrivateClaims()
 
 		ctx = context.WithValue(ctx, auth.UserIDClaimName, claims[string(auth.UserIDClaimName)])
 
 		return handler(ctx, req)
+	}
+}
+
+func AuthStreamServerInterceptor(secretKey string) grpc.StreamServerInterceptor {
+	return func(srv any, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		ctx := stream.Context()
+
+		if _, ok := methodsRequireAuth[info.FullMethod]; !ok {
+			return handler(ctx, stream)
+		}
+
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return status.Error(codes.Internal, "missing metadata")
+		}
+
+		authHeader := md["authorization"]
+		if len(authHeader) == 0 {
+			return status.Error(codes.Unauthenticated, "missing authorization header")
+		}
+
+		tokenString := strings.TrimPrefix(authHeader[0], "Bearer ")
+		if tokenString == "" {
+			return status.Error(codes.Unauthenticated, "malformed token")
+		}
+
+		ja := auth.NewAuth(secretKey)
+
+		token, err := ja.Decode(tokenString)
+		if err != nil {
+			return status.Error(codes.Unauthenticated, err.Error())
+		}
+
+		if err = jwt.Validate(token, ja.ValidateOptions()...); err != nil {
+			return status.Error(codes.Unauthenticated, err.Error())
+		}
+
+		// TODO: check token lifetime
+
+		claims := token.PrivateClaims()
+
+		ctx = context.WithValue(ctx, auth.UserIDClaimName, claims[string(auth.UserIDClaimName)])
+
+		return handler(ctx, stream)
 	}
 }
