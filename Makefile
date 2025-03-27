@@ -133,3 +133,18 @@ server:
 
 perm:
 	chmod -R +x bin
+
+# ==============================================================================
+#  Docker commands
+
+.PHONY: dc-build
+dc-build:	# Build docker compose
+	docker-compose -f deployments/docker-compose.yaml -f deployments/keyper/docker-compose.keyper.yaml -f deployments/postgres/docker-compose.postgres.yaml --env-file .env build
+
+.PHONY: dc-up
+dc-up:	# Build docker compose
+	docker-compose -f deployments/docker-compose.yaml -f deployments/keyper/docker-compose.keyper.yaml -f deployments/postgres/docker-compose.postgres.yaml --env-file .env up -d
+
+.PHONY: dc-down
+dc-down:	# Build docker compose
+	docker-compose -f deployments/docker-compose.yaml -f deployments/keyper/docker-compose.keyper.yaml -f deployments/postgres/docker-compose.postgres.yaml --env-file .env down
