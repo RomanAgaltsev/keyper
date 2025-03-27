@@ -1,3 +1,7 @@
+SHELL=/bin/bash
+GOTOOLCHAIN=go1.24.1
+CLIENT_NAME=keyper-cli
+
 POSTGRES_NAME = postgres17
 POSTGRES_USER = postgres
 POSTGRES_PASSWORD = postgres
@@ -103,3 +107,25 @@ mig-up:	# Apply all available migrations
 .PHONY: mig-down
 mig-down: # Roll back a single migration from the current version
 	goose -dir migrations postgres "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST)/$(POSTGRES_DB)?sslmode=disable" down
+
+# ==============================================================================
+# Build
+
+.PHONY: clear prep perm
+
+build-cli: prep clients perm
+
+clear:
+	rm -rf bin/*
+
+prep:
+	GOTOOLCHAIN=$(GOTOOLCHAIN) go mod tidy
+
+clients:
+	GOOS=linux GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -o=bin/$(CLIENT_NAME)-linux-amd64 -o=bin/$(CLIENT_NAME) ./cmd/$(CLIENT_NAME)/...
+	GOOS=windows GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -o=bin/$(CLIENT_NAME)-windows-amd64.exe ./cmd/$(CLIENT_NAME)/...
+	GOOS=darwin GOARCH=amd64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -o=bin/$(CLIENT_NAME)-darwin-amd64 ./cmd/$(CLIENT_NAME)/...
+	GOOS=darwin GOARCH=arm64 GOTOOLCHAIN=$(GOTOOLCHAIN) go build -gcflags="all=-N -l" -o=bin/$(CLIENT_NAME)-darwin-arm64 ./cmd/$(CLIENT_NAME)/...
+
+perm:
+	chmod -R +x bin
