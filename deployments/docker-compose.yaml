@@ -1,0 +1,5 @@
+name: keyper
+
+networks:
+    keyper-network:
+        driver: bridge
