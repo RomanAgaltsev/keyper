@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-cli/client"
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-cli/service"
 	"log/slog"
 
 	"github.com/RomanAgaltsev/keyper/internal/app/keyper-cli/tui"
@@ -15,12 +17,19 @@ type App struct {
 func NewApp(log *slog.Logger) *App {
 	return &App{
 		log: log,
-		tui: tui.NewTUI(),
 	}
 }
 
 // Run runs the whole application.
 func (a *App) Run() error {
+	userClient := client.NewUserClient()
+	userService := service.NewUserService(a.log, userClient)
+
+	secretClient := client.NewSecretClient()
+	secretService := service.NewSecretService(a.log, secretClient)
+
+	a.tui = tui.NewTUI(userService, secretService)
+
 	a.tui.Pages.AddPage("login", a.tui.LoginPage(), true, true)
 	a.tui.Pages.AddPage("secrets", a.tui.SecretsPage(), true, true)
 

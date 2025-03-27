@@ -1,19 +1,50 @@
 package tui
 
 import (
+	"context"
+
+	"github.com/google/uuid"
 	"github.com/rivo/tview"
+
+	"github.com/RomanAgaltsev/keyper/internal/app/keyper-cli/service"
+	"github.com/RomanAgaltsev/keyper/internal/model"
 )
 
-func NewTUI() *TUI {
+var (
+	_ UserService   = (*service.UserService)(nil)
+	_ SecretService = (*service.SecretService)(nil)
+)
+
+type UserService interface {
+	Register(ctx context.Context, user *model.User) error
+	Login(ctx context.Context, user *model.User) error
+}
+
+type SecretService interface {
+	Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error)
+	Update(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
+	UpdateData(ctx context.Context, userID uuid.UUID, secret *model.Secret) error
+	Get(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
+	GetData(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) (*model.Secret, error)
+	List(ctx context.Context, userID uuid.UUID) (model.Secrets, error)
+	Delete(ctx context.Context, userID uuid.UUID, secretID uuid.UUID) error
+}
+
+func NewTUI(user UserService, secret SecretService) *TUI {
 	return &TUI{
-		App:   tview.NewApplication(),
-		Pages: tview.NewPages(),
+		App:    tview.NewApplication(),
+		Pages:  tview.NewPages(),
+		user:   user,
+		secret: secret,
 	}
 }
 
 type TUI struct {
 	App   *tview.Application
 	Pages *tview.Pages
+
+	user   UserService
+	secret SecretService
 }
 
 func (t *TUI) LoginPage() *tview.Form {
@@ -22,7 +53,7 @@ func (t *TUI) LoginPage() *tview.Form {
 		AddInputField("Login", "", 20, nil, nil).
 		AddPasswordField("Password", "", 20, '*', nil).
 		AddButton("Login", func() {
-			// login
+			//
 			_ = form.GetFormItem(0).(*tview.InputField).GetText()
 			// password
 			_ = form.GetFormItem(1).(*tview.InputField).GetText()

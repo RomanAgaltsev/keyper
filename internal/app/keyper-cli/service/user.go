@@ -27,3 +27,11 @@ type UserService struct {
 
 	client UserClient
 }
+
+func (s *UserService) Register(ctx context.Context, user *model.User) error {
+	return nil
+}
+
+func (s *UserService) Login(ctx context.Context, user *model.User) error {
+	return nil
+}
