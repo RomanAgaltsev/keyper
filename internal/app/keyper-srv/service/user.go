@@ -24,7 +24,7 @@ type UserRepository interface {
 	Get(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID) (*model.User, error)
 }
 
-func NewUserService(log *slog.Logger, repository *repository.UserRepository) *UserService {
+func NewUserService(log *slog.Logger, repository UserRepository) *UserService {
 	return &UserService{
 		log:        log,
 		repository: repository,
@@ -34,7 +34,7 @@ func NewUserService(log *slog.Logger, repository *repository.UserRepository) *Us
 type UserService struct {
 	log *slog.Logger
 
-	repository *repository.UserRepository
+	repository UserRepository
 }
 
 func (s *UserService) Register(ctx context.Context, user *model.User) error {

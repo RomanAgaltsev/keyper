@@ -28,7 +28,7 @@ type SecretRepository interface {
 	Delete(ctx context.Context, ro []backoff.RetryOption, userID uuid.UUID, secretID uuid.UUID) error
 }
 
-func NewSecretService(log *slog.Logger, repository *repository.SecretRepository) *SecretService {
+func NewSecretService(log *slog.Logger, repository SecretRepository) *SecretService {
 	return &SecretService{
 		log:        log,
 		repository: repository,
@@ -38,7 +38,7 @@ func NewSecretService(log *slog.Logger, repository *repository.SecretRepository)
 type SecretService struct {
 	log *slog.Logger
 
-	repository *repository.SecretRepository
+	repository SecretRepository
 }
 
 func (s *SecretService) Create(ctx context.Context, secret *model.Secret) (uuid.UUID, error) {
