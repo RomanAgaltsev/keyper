@@ -49,10 +49,12 @@ type TUI struct {
 
 func (t *TUI) LoginPage() *tview.Form {
 	var form *tview.Form
+
 	form = tview.NewForm().
+		AddInputField("Server", "", 50, nil, nil).
 		AddInputField("Login", "", 30, nil, nil).
 		AddPasswordField("Password", "", 30, '*', nil).
-		AddTextArea("Token", "", 50, 1, 50, nil).
+		AddTextArea("Token", "", 50, 5, 50, nil).
 		AddButton("Register", func() {
 			login := form.GetFormItemByLabel("Login").(*tview.InputField).GetText()
 			password := form.GetFormItemByLabel("Password").(*tview.InputField).GetText()
@@ -113,13 +115,39 @@ func (t *TUI) LoginPage() *tview.Form {
 
 func (t *TUI) SecretsPage() *tview.List {
 	var list *tview.List
+
 	list = tview.NewList()
 	list.AddItem("Error loading secrets", "", 0, nil)
 	list.AddItem("Back", "Return to login", 0, func() {
 		t.Pages.SwitchToPage("login")
 	})
 	list.SetBorder(true).SetTitle("Secrets").SetTitleAlign(tview.AlignCenter)
+
 	return list
+}
+
+func (t *TUI) SecretPage() *tview.Form {
+	var form *tview.Form
+
+	form = tview.NewForm().
+		AddInputField("ID", "", 50, nil, nil).
+		AddInputField("Name", "", 30, nil, nil).
+		AddInputField("Type", "", 30, nil, nil).
+		AddTextArea("Metadata", "", 50, 3, 50, nil).
+		AddTextArea("Data", "", 50, 3, 50, nil).
+		AddInputField("Comment", "", 50, nil, nil).
+		AddInputField("Created", "", 30, nil, nil).
+		AddInputField("Updated", "", 30, nil, nil).
+		AddButton("Save", func() {}).
+		AddButton("Copy", func() {}).
+		AddButton("Back", func() {})
+
+	form.
+		SetBorder(true).
+		SetTitle("Secret").
+		SetTitleAlign(tview.AlignCenter)
+
+	return form
 }
 
 func ErrorPage() *tview.Form {
